@@ -854,7 +854,7 @@ export default function BackofficePage() {
 
   const handleContactarComprador = (comprador: Comprador) => {
     const mensaje = encodeURIComponent(
-      `Hola ${comprador.nombre}, te contacto respecto a tu transferencia para el sorteo de remeras.`,
+      `Hola ${comprador.nombre}, te contacto respecto a tu transferencia para el sorteo.`,
     )
 
     // Prioridad: instagram_username > telefono (validado) > telefono (legacy como instagram)
@@ -979,7 +979,7 @@ export default function BackofficePage() {
     await cargarDatos()
     toast({
       title: "Título actualizado",
-      description: "El título de la remera se actualizó correctamente",
+      description: "El título del premio se actualizó correctamente",
     })
   }
 
