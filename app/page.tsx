@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingCart, Clock, Star, Trophy } from "lucide-react"
+import { ShoppingCart, Clock, Trophy } from "lucide-react"
 import Link from "next/link"
 import { CompraModalNuevo } from "@/components/compra-modal-nuevo"
 import { Header } from "@/components/header"
-import { TShirtMockup } from "@/components/tshirt-mockup"
 import { GanadoresPasados } from "@/components/ganadores-pasados"
 import { GanadoresExpress } from "@/components/ganadores-express"
 import dynamic from "next/dynamic"
@@ -100,7 +99,6 @@ export default function LandingPage() {
       },
     ]
 
-    // Filtrar solo los packs visibles
     return allPacks.filter((pack) => pack.visible)
   }
 
@@ -141,7 +139,6 @@ export default function LandingPage() {
     if (!packSeleccionado || !sorteo) return
 
     try {
-      // Verificar disponibilidad de números
       const numerosDisponibles = await generarNumerosUnicos(
         sorteo.id,
         packSeleccionado.chances,
@@ -156,7 +153,6 @@ export default function LandingPage() {
         return
       }
 
-      // Guardar datos en localStorage
       const datosCompra = {
         sorteoId: sorteo.id,
         nombre,
@@ -172,35 +168,27 @@ export default function LandingPage() {
         JSON.stringify(datosCompra),
       )
 
-      // Mostrar loading
       toast({
         title: "Preparando pago...",
         description: "Te redirigiremos a MercadoPago en un momento",
       })
 
-      // Crear preferencia de pago
       const response = await fetch("/api/crear-preferencia", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datosCompra),
       })
 
-      if (!response.ok) {
-        throw new Error("Error creando preferencia de pago")
-      }
+      if (!response.ok) throw new Error("Error creando preferencia de pago")
 
       const { preferenceId, paymentUrl } = await response.json()
 
-      // Guardar preference ID en localStorage
       const datosActualizados = { ...datosCompra, preferenceId }
       localStorage.setItem(
         "sorteo_compra_pendiente",
         JSON.stringify(datosActualizados),
       )
 
-      // Redirigir a MercadoPago
       window.location.href = paymentUrl
     } catch (error) {
       console.error("Error procesando compra:", error)
@@ -224,16 +212,12 @@ export default function LandingPage() {
     if (!packSeleccionado || !sorteo) return
 
     try {
-      // Detectar si es teléfono (WhatsApp) o Instagram
       const esWhatsApp = /^[\d\s+()-]+$/.test(data.contacto.trim())
 
-      // Crear FormData para enviar el archivo
       const formData = new FormData()
       formData.append("sorteoId", sorteo.id)
       formData.append("nombre", data.nombre)
-      if (data.email) {
-        formData.append("email", data.email)
-      }
+      if (data.email) formData.append("email", data.email)
       if (esWhatsApp) {
         formData.append("telefono", data.contacto)
       } else {
@@ -252,11 +236,7 @@ export default function LandingPage() {
         body: formData,
       })
 
-      if (!response.ok) {
-        throw new Error("Error procesando transferencia")
-      }
-
-      const resultado = await response.json()
+      if (!response.ok) throw new Error("Error procesando transferencia")
 
       toast({
         title: "¡Transferencia registrada!",
@@ -265,7 +245,6 @@ export default function LandingPage() {
         duration: 5000,
       })
 
-      // Actualizar estadísticas localmente para mostrar el cambio
       await cargarDatos()
     } catch (error) {
       console.error("Error procesando transferencia:", error)
@@ -292,10 +271,7 @@ export default function LandingPage() {
 
   const handleCompra = (pack: (typeof PACKS)[0]) => {
     if (sorteoCompleto) return
-    setPackSeleccionado({
-      ...pack,
-      sorteoId: sorteo?.id,
-    })
+    setPackSeleccionado({ ...pack, sorteoId: sorteo?.id })
     setModalAbierto(true)
   }
 
@@ -329,8 +305,8 @@ export default function LandingPage() {
     return (
       <div className="min-h-screen bg-dark-gradient flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-[#ff0040] border-t-transparent rounded-full animate-spin mx-auto neon-glow"></div>
-          <p className="text-gray-400 font-medium">Cargando...</p>
+          <div className="w-12 h-12 border-2 border-[#ff0040] border-t-transparent rounded-full animate-spin mx-auto opacity-80"></div>
+          <p className="text-gray-500 text-sm tracking-widest uppercase">Cargando</p>
         </div>
       </div>
     )
@@ -342,25 +318,25 @@ export default function LandingPage() {
         <Header />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center space-y-6 max-w-md">
-            <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-[#ff0040]/40 mx-auto">
+            <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-gray-700 mx-auto">
               <img src="/sosamotos.jpeg" alt="Sosa Motos" className="w-full h-full object-cover" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black text-white uppercase tracking-wide">Próximamente</h2>
-              <p className="text-gray-400">Estamos preparando el próximo sorteo. ¡Volvé pronto!</p>
+              <h2 className="text-3xl font-display tracking-wider text-white uppercase">Próximamente</h2>
+              <p className="text-gray-500 text-sm">Estamos preparando el próximo sorteo. ¡Volvé pronto!</p>
             </div>
             <Link
               href="https://wa.me/5493795152063"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block btn-neon px-6 py-3 rounded-xl font-bold text-sm"
+              className="inline-block btn-neon px-6 py-3 rounded-lg font-semibold text-sm tracking-wide"
             >
               Avisame cuando arranque
             </Link>
           </div>
         </div>
-        <footer className="bg-black/50 backdrop-blur-sm border-t border-gray-800 py-6">
-          <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
+        <footer className="bg-black border-t border-gray-900 py-6">
+          <div className="container mx-auto px-4 text-center text-gray-600 text-xs tracking-wide">
             <p>&copy; 2025 Sosa Motos. Todos los derechos reservados.</p>
           </div>
         </footer>
@@ -374,261 +350,197 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-screen flex items-center">
-        {/* Background Effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-red-400/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#ff0040]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-red-400/5 to-transparent rounded-full"></div>
+        {/* Background Effects — muy sutiles */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-20 w-80 h-80 bg-[#ff0040]/4 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#ff0040]/3 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative container mx-auto px-4 py-10 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            {/* iPhone Carousel a la izquierda */}
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
+            {/* Carousel a la izquierda */}
             <div
-              className={`relative transition-all duration-1000 ${
+              className={`relative transition-all duration-700 ${
                 animacionVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-10"
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
               }`}
             >
-              <div className="relative group">
-                {/* Glow effect behind carousel */}
-                <div className="absolute -inset-8 bg-gradient-to-r from-red-400/20 to-orange-400/20 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-1000 animate-pulse"></div>
+              <div className="relative">
+                <IphoneCarousel />
 
-                {/* iPhone Carousel */}
-                <div className="relative">
-                  <IphoneCarousel />
+                {/* Floating badge */}
+                <div className="absolute -top-4 inset-x-0 mx-auto w-fit lg:inset-x-auto lg:right-16 lg:mx-0 xl:-right-2 bg-[#ff0040] text-white px-4 py-1.5 rounded-full font-semibold text-xs tracking-widest uppercase z-30 flex items-center gap-1.5">
+                  <Trophy className="w-3 h-3" />
+                  Premio Exclusivo
                 </div>
+              </div>
 
-                {/* Texto principal */}
-                <div className="text-center mt-8 space-y-4">
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl uppercase font-black text-[#ff0040]">
-                    ¡PARTICIPA POR {sorteo.titulo_remera || "Remera Exclusiva"}!
-                  </h2>
-                  {/* <h3 className="text-xl lg:text-2xl font-bold text-red-500 glow-red">
-                    PARTICIPAS GRATIS DEL IPHONE 14 pro Max NUEVO EN CAJA
-                  </h3> */}
-                </div>
-
-                {/* Floating elements */}
-                <div className="absolute -top-4 inset-x-0 mx-auto w-fit lg:inset-x-auto lg:right-24 lg:mx-0 xl:-right-4 bg-neon-gradient text-black px-4 py-2 rounded-full font-bold text-sm animate-bounce z-30">
-                  <Trophy className="w-4 h-4 inline mr-1" />
-                  PREMIO EXCLUSIVO
-                </div>
+              {/* Título bajo el carousel */}
+              <div className="text-center mt-8">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display tracking-widest text-[#ff0040] uppercase">
+                  ¡Participá por {sorteo.titulo_remera || "Remera Exclusiva"}!
+                </h2>
               </div>
             </div>
 
             {/* Contenido a la derecha */}
             <div
-              className={`space-y-8 transition-all duration-1000 delay-300 ${
+              className={`space-y-6 transition-all duration-700 delay-200 ${
                 animacionVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-10"
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
               }`}
             >
-              {/* Badge y título */}
-              <div className="space-y-2">
-                {/* <Badge className="bg-neon-gradient text-black hover:bg-neon-gradient text-sm font-bold px-6 py-3 animate-glow">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Chances limitadas
-                </Badge> */}
-
-                {/* <h1 className="text-5xl lg:text-7xl font-black leading-tight">
-                  <span className="text-white">GONZA MAS MOTOS</span>
-                  <br />
-                  <span className="neon-text text-center uppercase animate-neon-pulse">
-                    EXCLUSIVO
-                    Edición limitada.
-                  </span>
-                </h1> */}
-
-                {sorteo?.estado !== "sorteado" && (
-                  <p className="text-xl lg:text-3xl text-gray-300  font-medium max-w-lg">
-                    Compra que se van volando!
-                  </p>
-                )}
-              </div>
+              {sorteo?.estado !== "sorteado" && (
+                <p className="text-2xl lg:text-3xl text-gray-300 font-light leading-snug">
+                  Compra que se van volando!
+                </p>
+              )}
 
               {/* Progress Bar / Evento finalizado */}
               {sorteo?.estado === "sorteado" ? (
-                <div className="bg-card-dark backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 neon-border text-center">
-                  <p className="text-xl sm:text-2xl font-bold text-gray-300">
+                <div className="bg-[#111] border border-gray-800 rounded-xl p-6 text-center">
+                  <p className="text-lg font-semibold text-gray-300">
                     Evento finalizado
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4 sm:space-y-6 bg-card-dark backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 neon-border">
+                <div className="space-y-4 bg-[#111] border border-gray-800 rounded-xl p-5 sm:p-6">
                   <div className="flex justify-between items-center">
-                    <span className="text-base sm:text-lg font-bold text-white">
+                    <span className="text-sm font-medium text-gray-400 uppercase tracking-widest">
                       Chances vendidas
                     </span>
-                    {/* <span className="text-lg font-bold neon-text">
-                      {chancesVendidas}/{TOTAL_CHANCES}
-                    </span> */}
                   </div>
-                  <AnimatedProgress value={porcentajeVendido} className="h-8" />
-                  <div className="text-center">
-                    <span className="text-2xl sm:text-3xl font-black text-[#ff0040]">
+                  <AnimatedProgress value={porcentajeVendido} className="h-3" />
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-display tracking-wide text-[#ff0040]">
                       {porcentajeVendido.toFixed(1)}%
                     </span>
-                    <span className="text-base sm:text-lg ml-2 text-gray-300">
-                      completado
-                    </span>
+                    <span className="text-sm text-gray-500">completado</span>
                   </div>
                 </div>
               )}
 
-              {/* Stats */}
-              {/* <div className="grid grid-cols-2 gap-4">
-                <div className="text-center bg-card-dark backdrop-blur-sm rounded-xl p-6 neon-border hover:neon-glow transition-all duration-300">
-                  <Users className="h-8 w-8 mx-auto mb-3 neon-text" />
-                  <div className="text-3xl font-bold text-white">
-                    {totalCompradores}
-                  </div>
-                  <div className="text-sm text-gray-400">Participantes</div>
-                </div>
-                <div className="text-center bg-card-dark backdrop-blur-sm rounded-xl p-6 neon-border hover:neon-glow transition-all duration-300">
-                  <Clock className="h-8 w-8 mx-auto mb-3 neon-text" />
-                  <div className="text-3xl font-bold text-white">{TOTAL_CHANCES - chancesVendidas}</div>
-                  <div className="text-sm text-gray-400">Disponibles</div>
-                </div>
-                <div className="text-center bg-card-dark backdrop-blur-sm rounded-xl p-6 neon-border hover:neon-glow transition-all duration-300">
-                  <Star className="h-8 w-8 mx-auto mb-3 neon-text" />
-                  <div className="text-3xl font-bold text-white">1</div>
-                  <div className="text-sm text-gray-400">Ganador</div>
-                </div>
-              </div> */}
-
-              {/* Mensaje de sorteo completo */}
+              {/* Estados: completo / sorteado / cerrado */}
               {sorteoCompleto && (
                 <div className="space-y-4">
-                  {/* Estado: Completo - Esperando sorteo */}
                   {sorteo?.estado === "completo" && (
-                    <div className="bg-yellow-900/20 border border-yellow-500/50 text-yellow-300 px-6 py-4 rounded-xl text-center backdrop-blur-sm">
-                      <h3 className="text-xl font-bold mb-2 flex items-center justify-center gap-2">
-                        <Clock className="w-6 h-6" />
+                    <div className="bg-yellow-950/30 border border-yellow-800/40 text-yellow-300 px-5 py-4 rounded-xl">
+                      <h3 className="text-base font-semibold mb-1 flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
                         ¡Todas las prendas vendidas!
                       </h3>
-                      <p className="mb-2">
+                      <p className="text-sm text-yellow-300/70">
                         El sorteo se realizará mañana a las{" "}
                         <strong>14:00 hs</strong> según el primer número de la{" "}
                         <strong>Quiniela de Buenos Aires</strong>
                       </p>
                       {sorteo.fecha_sorteo_realizado && (
-                        <p className="text-sm opacity-80">
+                        <p className="text-xs opacity-60 mt-1">
                           Prendas completadas el{" "}
-                          {new Date(
-                            sorteo.fecha_sorteo_realizado,
-                          ).toLocaleDateString("es-AR")}
+                          {new Date(sorteo.fecha_sorteo_realizado).toLocaleDateString("es-AR")}
                         </p>
                       )}
                     </div>
                   )}
 
-                  {/* Estado: Sorteado - Mostrar ganador */}
                   {sorteo?.estado === "sorteado" && (
-                    <div className="bg-green-900/20 border border-green-500/50 text-green-300 px-6 py-4 rounded-xl text-center backdrop-blur-sm">
-                      <h3 className="text-xl font-bold mb-2 flex items-center justify-center gap-2">
-                        <Trophy className="w-6 h-6" />
-                        Resultados!
+                    <div className="bg-green-950/30 border border-green-800/40 text-green-300 px-5 py-4 rounded-xl">
+                      <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
+                        <Trophy className="w-4 h-4" />
+                        Resultados
                       </h3>
                       {sorteo.numero_ganador && (
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                           {sorteo.ganador_nombre && (
-                            <p className="text-xl font-semibold text-white">
+                            <p className="text-sm text-white">
                               Ganador:{" "}
-                              <span className="text-green-400">
+                              <span className="font-semibold text-green-400">
                                 {sorteo.ganador_nombre}
                               </span>
                             </p>
                           )}
-                          <p className="text-2xl font-bold text-white">
+                          <p className="text-sm text-white">
                             Número Ganador:{" "}
-                            <span className="text-green-400">
+                            <span className="font-mono font-bold text-green-400 text-lg">
                               {sorteo.numero_ganador}
                             </span>
                           </p>
-                          <p className="text-sm">
+                          <p className="text-xs text-green-300/60">
                             Según la Quiniela de Buenos Aires del{" "}
                             {sorteo.updated_at &&
-                              new Date(sorteo.updated_at).toLocaleDateString(
-                                "es-AR",
-                              )}
+                              new Date(sorteo.updated_at).toLocaleDateString("es-AR")}
                           </p>
                         </div>
                       )}
                     </div>
                   )}
 
-                  {/* Estado: Cerrado o por defecto */}
                   {(sorteo?.estado === "cerrado" ||
-                    (sorteo?.estado &&
-                      !sorteo.estado.match(/completo|sorteado/))) && (
-                    <div className="bg-red-900/20 border border-red-500/50 text-red-300 px-6 py-4 rounded-xl text-center backdrop-blur-sm">
-                      <h3 className="text-xl font-bold mb-2">
+                    (sorteo?.estado && !sorteo.estado.match(/completo|sorteado/))) && (
+                    <div className="bg-[#ff0040]/10 border border-[#ff0040]/20 text-white px-5 py-4 rounded-xl">
+                      <h3 className="text-base font-semibold mb-1">
                         ¡Gracias por participar!
                       </h3>
-                      {/* <p>Gracias por participar y mucha suerte a todos!</p> */}
-                      <p>Mucha suerte a todos y siempre con fe!</p>
+                      <p className="text-sm text-gray-400">Mucha suerte a todos y siempre con fe!</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Botones de compra */}
+              {/* Pack cards */}
               {!sorteoCompleto && (
-                <div className="grid gap-4">
+                <div className="space-y-3">
                   {PACKS.map((pack, index) => (
                     <div
                       key={pack.chances}
-                      className={`relative group transition-all duration-300 ${
+                      className={`transition-all duration-500 ${
                         animacionVisible
                           ? "opacity-100 translate-y-0"
-                          : "opacity-0 translate-y-10"
+                          : "opacity-0 translate-y-6"
                       }`}
-                      style={{ transitionDelay: `${(index + 4) * 200}ms` }}
+                      style={{ transitionDelay: `${(index + 3) * 150}ms` }}
                     >
                       {pack.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                          <Badge className="bg-neon-gradient text-black px-4 py-1 font-bold animate-pulse">
-                            MÁS POPULAR
-                          </Badge>
+                        <div className="mb-1.5">
+                          <span className="text-[10px] font-semibold uppercase tracking-widest text-[#ff0040] pl-1">
+                            Más popular
+                          </span>
                         </div>
                       )}
 
                       <div
-                        className={`bg-card-dark rounded-2xl p-4 sm:p-6 neon-border hover:neon-glow transition-all duration-300 ${
-                          pack.popular ? "scale-100" : "scale-95"
+                        className={`rounded-xl p-4 sm:p-5 transition-all duration-200 ${
+                          pack.popular
+                            ? "bg-[#ff0040]/8 border border-[#ff0040]/35 hover:border-[#ff0040]/60"
+                            : "bg-[#111] border border-gray-800 hover:border-gray-600"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="flex-1">
-                              <div className="text-xl sm:text-2xl font-bold text-white">
-                                {pack.chances} Chances
-                              </div>
-                              <div
-                                className={`text-sm font-semibold mt-1 line-clamp-2 ${
-                                  pack.descripcion
-                                    ? "text-yellow-400"
-                                    : "text-gray-400"
-                                }`}
-                              >
-                                {pack.descripcion ||
-                                  `${pack.chances} números asignados`}
-                              </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-lg sm:text-xl font-semibold text-white">
+                              {pack.chances} Chances
+                            </div>
+                            <div
+                              className={`text-xs font-medium mt-0.5 line-clamp-2 ${
+                                pack.descripcion ? "text-yellow-400/80" : "text-gray-500"
+                              }`}
+                            >
+                              {pack.descripcion || `${pack.chances} números asignados`}
                             </div>
                           </div>
 
-                          <div className="text-right">
-                            <div className="text-xl sm:text-2xl font-extrabold text-[#ff0040]">
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-xl sm:text-2xl font-semibold text-[#ff0040]">
                               ${pack.precio.toLocaleString()}
                             </div>
                             <Button
                               onClick={() => handleCompra(pack)}
-                              className="btn-neon mt-2 px-6 py-2"
+                              size="sm"
+                              className="btn-neon mt-2 px-5 py-1.5 text-xs rounded-lg h-auto"
                             >
-                              <ShoppingCart className="w-4 h-4 mr-2" />
+                              <ShoppingCart className="w-3 h-3 mr-1.5" />
                               Comprar
                             </Button>
                           </div>
@@ -639,10 +551,9 @@ export default function LandingPage() {
                 </div>
               )}
 
-              {/* Solo mostrar el texto de más chances si hay múltiples packs visibles */}
               {!sorteoCompleto && PACKS.length > 1 && (
-                <p className="text-base px-2 text-gray-400 text-center mt-4">
-                  Mientras más chances compras, más posibilidades de ganar! 🤩
+                <p className="text-xs text-gray-600 text-center tracking-wide">
+                  Mientras más chances comprás, más posibilidades de ganar.
                 </p>
               )}
             </div>
@@ -651,86 +562,78 @@ export default function LandingPage() {
       </section>
 
       {/* Sección de Premios */}
-      <section className="py-16 bg-gradient-to-b from-black/50 to-black/80">
+      <section className="py-16 border-t border-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-              {/* <Trophy className="w-10 h-10 inline mr-3 text-yellow-400" /> */}
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#ff0040] mb-3">
+              Lo que podés ganar
+            </p>
+            <h2 className="text-5xl lg:text-7xl font-display tracking-wider text-white">
               Premios
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {/* 1er Premio */}
-            <div className="bg-gray-900/50 rounded-2xl p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300 text-center">
-              <h3 className="text-2xl font-bold text-yellow-400 mb-4">
+            <div className="bg-[#111] border border-gray-800 rounded-xl p-8 text-center hover:border-gray-700 transition-colors duration-200">
+              <p className="text-xs font-semibold uppercase tracking-widest text-yellow-500/70 mb-3">
                 1er Premio
-              </h3>
-              <p className="text-2xl lg:text-3xl font-bold uppercase text-white">
+              </p>
+              <p className="text-2xl lg:text-3xl font-display tracking-wide uppercase text-white">
                 {sorteo.titulo_remera || "Remera Exclusiva"}
               </p>
             </div>
 
-            {/* 2do Premio — Premios Secundarios (dinámico) */}
+            {/* Premios Secundarios */}
             {premiosSecundarios?.visible && premiosSecundarios.numeros.length > 0 && (
-              <div className="bg-gray-900/50 rounded-2xl p-6 md:p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300">
-                <h3 className="text-2xl font-bold text-gray-300 mb-4 flex items-center justify-center gap-2">
-                  <Trophy className="w-6 h-6 text-yellow-400" />
-                  PREMIOS SECUNDARIOS
-                </h3>
-
-                <div className="flex flex-col items-center gap-4">
-                  <p className="text-lg font-bold text-yellow-300 tracking-widest text-center">
-                    {premiosSecundarios.titulo} 🙏🏻✨
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    {premiosSecundarios.numeros.map((num) => (
-                      <span
-                        key={num}
-                        className="bg-yellow-400/10 border border-yellow-400/40 text-yellow-300 font-extrabold text-2xl rounded-xl px-5 py-2"
-                      >
-                        {num}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-300 text-center mt-1">
-                    Si te toca alguno de estos números ganás{" "}
-                    <span className="font-bold text-white">{premiosSecundarios.monto}</span> 🎁✅
+              <div className="bg-[#111] border border-yellow-500/20 rounded-xl p-6 md:p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy className="w-4 h-4 text-yellow-500/70" />
+                  <p className="text-xs font-semibold uppercase tracking-widest text-yellow-500/70">
+                    Premios Secundarios
                   </p>
                 </div>
+
+                <p className="text-base font-semibold text-yellow-300 mb-4">
+                  {premiosSecundarios.titulo}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {premiosSecundarios.numeros.map((num) => (
+                    <span
+                      key={num}
+                      className="bg-yellow-400/8 border border-yellow-400/25 text-yellow-300 font-mono font-bold text-xl rounded-lg px-4 py-1.5"
+                    >
+                      {num}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Si te toca alguno de estos números ganás{" "}
+                  <span className="font-semibold text-gray-300">{premiosSecundarios.monto}</span>
+                </p>
               </div>
             )}
-
-            {/* 3er Premio */}
-            {/* <div className="bg-gray-900/50 rounded-2xl p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300 text-center">
-              <h3 className="text-2xl font-bold text-orange-400 mb-4">
-                3er Premio
-              </h3>
-              <p className="text-2xl lg:text-3xl font-bold text-white">
-                $50.000
-              </p>
-            </div> */}
           </div>
         </div>
       </section>
 
-      {/* Sección de Preguntas Frecuentes */}
-      <section className="py-16 bg-gradient-to-b from-black/80 to-black/50">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-10 text-center">
+      {/* Sección FAQ */}
+      <section className="py-16 border-t border-gray-900">
+        <div className="container mx-auto px-4 max-w-xl">
+          <h2 className="text-4xl lg:text-5xl font-display tracking-wider text-white mb-10">
             Preguntas frecuentes
           </h2>
-          <div className="space-y-4">
+
+          <div className="space-y-8">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                ¿CUÁNDO SE REALIZA EL EVENTO?
-              </h3>
-              <div className="bg-card-dark rounded-xl p-4 neon-border text-center">
-                <span className="text-white text-lg font-bold">
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
+                ¿Cuándo se realiza el evento?
+              </p>
+              <div className="border-l-2 border-[#ff0040]/40 pl-4">
+                <span className="text-white text-lg font-medium">
                   {sorteo?.fecha_sorteo
-                    ? new Date(
-                        sorteo.fecha_sorteo + "T12:00:00",
-                      ).toLocaleDateString("es-AR", {
+                    ? new Date(sorteo.fecha_sorteo + "T12:00:00").toLocaleDateString("es-AR", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
@@ -741,18 +644,17 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                ¿EN DÓNDE VEMOS EL GANADOR?
-              </h3>
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
+                ¿En dónde vemos el ganador?
+              </p>
               <Link
                 href="https://www.loteriasmundiales.com.ar/Quinielas/buenos-aires"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block"
               >
-                <div className="bg-card-dark rounded-xl p-4 neon-border text-center hover:neon-glow transition-all duration-300 cursor-pointer">
-                  <span className="text-[#ff0040] text-lg font-bold glow-red">
-                    POR QUINIELA DE BUENOS AIRES LA PREVIA — 10:15 hs
+                <div className="border-l-2 border-[#ff0040]/40 pl-4 hover:border-[#ff0040] transition-colors duration-200">
+                  <span className="text-[#ff0040] text-base font-medium">
+                    Quiniela de Buenos Aires — La Previa · 10:15 hs
                   </span>
                 </div>
               </Link>
@@ -762,18 +664,23 @@ export default function LandingPage() {
       </section>
 
       {/* Sección Consultá tus números */}
-      <section className="py-16 bg-gradient-to-b from-black/50 to-black/80">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4 text-center">
-            ¿Ya participaste?
-          </h2>
-          <p className="text-center text-gray-400 mb-10 text-lg">
-            Ingresá el email con el que compraste y consultá tus números
-            asignados.
-          </p>
+      <section className="py-16 border-t border-gray-900">
+        <div className="container mx-auto px-4 max-w-xl">
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#ff0040] mb-3">
+              Participantes
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-display tracking-wider text-white mb-2">
+              ¿Ya participaste?
+            </h2>
+            <p className="text-gray-500 text-sm">
+              Ingresá el email con el que compraste para ver tus números asignados.
+            </p>
+          </div>
+
           <form
             onSubmit={consultarMisNumeros}
-            className="flex flex-col sm:flex-row gap-3 mb-8"
+            className="flex flex-col sm:flex-row gap-2 mb-6"
           >
             <input
               type="email"
@@ -781,31 +688,30 @@ export default function LandingPage() {
               onChange={(e) => setConsultaEmail(e.target.value)}
               placeholder="tucorreo@email.com"
               disabled={consultaLoading}
-              className="flex-1 bg-gray-800 border border-gray-700 text-white placeholder:text-gray-500 rounded-xl px-4 py-3 focus:outline-none focus:border-[#ff0040] focus:ring-1 focus:ring-[#ff0040] transition-colors disabled:opacity-50"
+              className="flex-1 bg-[#111] border border-gray-800 text-white placeholder:text-gray-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff0040]/60 focus:ring-1 focus:ring-[#ff0040]/30 transition-colors disabled:opacity-50"
             />
             <button
               type="submit"
               disabled={consultaLoading || !consultaEmail.trim()}
-              className="bg-[#ff0040] text-white font-bold px-8 py-3 rounded-xl hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="btn-neon px-7 py-3 rounded-lg text-sm font-semibold tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none whitespace-nowrap"
             >
               {consultaLoading ? "Buscando..." : "Consultar"}
             </button>
           </form>
 
           {consultaError && (
-            <div className="bg-red-900/30 border border-red-700 rounded-xl p-4 text-center text-red-400 mb-4">
+            <div className="bg-red-950/30 border border-red-900/40 rounded-lg p-4 text-center text-red-400 text-sm mb-4">
               {consultaError}
             </div>
           )}
 
           {consultaResultados !== null && consultaResultados.length === 0 && (
-            <div className="bg-card-dark rounded-xl p-6 neon-border text-center">
-              <p className="text-gray-400 text-lg">
+            <div className="bg-[#111] border border-gray-800 rounded-xl p-6 text-center">
+              <p className="text-gray-500 text-sm">
                 No encontramos participaciones confirmadas para ese email.
               </p>
-              <p className="text-gray-500 text-sm mt-2">
-                Si pagaste por transferencia, tu pago puede estar pendiente de
-                aprobación.
+              <p className="text-gray-600 text-xs mt-2">
+                Si pagaste por transferencia, tu pago puede estar pendiente de aprobación.
               </p>
             </div>
           )}
@@ -813,16 +719,13 @@ export default function LandingPage() {
           {consultaResultados !== null && consultaResultados.length > 0 && (
             <div className="space-y-4">
               {consultaResultados.map((p) => (
-                <div
-                  key={p.id}
-                  className="bg-card-dark rounded-xl p-6 neon-border"
-                >
+                <div key={p.id} className="bg-[#111] border border-gray-800 rounded-xl p-5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                     <div>
-                      <p className="text-white font-bold text-lg">{p.nombre}</p>
-                      <p className="text-gray-400 text-sm">{p.sorteo_nombre}</p>
+                      <p className="text-white font-semibold">{p.nombre}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{p.sorteo_nombre}</p>
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-600">
                       {new Date(p.created_at).toLocaleDateString("es-AR", {
                         day: "numeric",
                         month: "long",
@@ -830,7 +733,7 @@ export default function LandingPage() {
                       })}
                     </span>
                   </div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
                     Tus {p.cantidad_chances} números asignados
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -839,7 +742,7 @@ export default function LandingPage() {
                       .map((numero) => (
                         <span
                           key={numero}
-                          className="bg-gray-900 border border-[#ff0040] text-[#ff0040] font-bold px-3 py-1 rounded-lg text-sm"
+                          className="bg-[#ff0040]/10 text-[#ff0040] font-mono font-semibold px-3 py-1 rounded text-sm border border-[#ff0040]/15"
                         >
                           {numero}
                         </span>
@@ -852,52 +755,44 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Sección de Ganadores Express */}
+      {/* Ganadores Express */}
       {sorteo && <GanadoresExpress sorteoId={sorteo.id} />}
 
-      {/* Sección de Ganadores Pasados */}
+      {/* Ganadores Pasados */}
       <GanadoresPasados />
 
-      {/* Footer minimalista */}
-      <footer className="bg-black/50 backdrop-blur-sm border-t border-gray-800 py-8">
+      {/* Footer */}
+      <footer className="bg-black border-t border-gray-900 py-10">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-center md:text-left mb-4 md:mb-0">
-              <h3 className="text-xl font-bold neon-text">Sosa Motos</h3>
-            </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <span className="text-base font-semibold text-white tracking-wide">
+              Sosa Motos
+            </span>
             <div className="flex space-x-6">
-              {/* <Link
-                href="/backoffice"
-                className="text-gray-400 hover:neon-text transition-colors"
-              >
-                Admin
-              </Link> */}
               <Link
-                href={"https://wa.me/5493795152063"}
-                className="text-gray-400 hover:neon-text transition-colors"
+                href="https://wa.me/5493795152063"
+                className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
               >
                 Contacto
               </Link>
               <Link
                 href="/terminos"
-                className="text-gray-400 hover:neon-text transition-colors"
+                className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
               >
                 Términos
               </Link>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-6 pt-6 text-center text-gray-500">
-            <p>&copy; 2025 Sosa Motos. Todos los derechos reservados.</p>
-            <p className="mt-2">
-              <Link
-                href={"https://linktr.ee/deweertstudio"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:neon-text transition-colors"
-              >
-                Desarrollado por De Weert Studio
-              </Link>
-            </p>
+          <div className="border-t border-gray-900 mt-6 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p className="text-gray-700 text-xs">&copy; 2025 Sosa Motos. Todos los derechos reservados.</p>
+            <Link
+              href="https://linktr.ee/deweertstudio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-700 hover:text-gray-500 transition-colors text-xs"
+            >
+              Desarrollado por De Weert Studio
+            </Link>
           </div>
         </div>
       </footer>
