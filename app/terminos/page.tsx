@@ -19,7 +19,7 @@ export default function TerminosPage() {
                 Volver
               </Button>
             </Link>
-            <h1 className="text-xl font-bold neon-text">Sosa Motos</h1>
+            <h1 className="text-xl font-bold neon-text">Facuregalos</h1>
           </div>
         </div>
       </header>
@@ -61,7 +61,7 @@ export default function TerminosPage() {
                 </h2>
                 <p className="text-lg">
                   Todos los diseños ofrecidos en este sitio son propiedad de
-                  Sosa Motos y están protegidos por las leyes de propiedad
+                  Facuregalos y están protegidos por las leyes de propiedad
                   intelectual.
                 </p>
               </section>
@@ -81,7 +81,7 @@ export default function TerminosPage() {
                   5. Modificaciones
                 </h2>
                 <p className="text-lg">
-                  Sosa Motos se reserva el derecho de modificar los
+                  Facuregalos se reserva el derecho de modificar los
                   presentes términos y condiciones en cualquier momento.
                 </p>
               </section>
@@ -135,7 +135,7 @@ export default function TerminosPage() {
       <footer className="bg-black/50 backdrop-blur-sm border-t border-gray-800 py-8 mt-12">
         <div className="container mx-auto px-4">
           <div className="text-center text-gray-500">
-            <p>&copy; 2025 Sosa Motos. Todos los derechos reservados.</p>
+            <p>&copy; 2025 Facuregalos. Todos los derechos reservados.</p>
             <p className="mt-2">
               <Link
                 href={"https://linktr.ee/deweertstudio"}

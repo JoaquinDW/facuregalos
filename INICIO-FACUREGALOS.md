@@ -1,6 +1,6 @@
-# Guía de Inicio — Sosa Motos
+# Guía de Inicio — Facuregalos
 
-Credenciales admin del panel: **usuario** `sosamotos` / **contraseña** `SosaMotos2025!`
+Credenciales admin del panel: **usuario** `facuregalos` / **contraseña** `Facuregalos2025!`
 
 ---
 
@@ -9,7 +9,7 @@ Credenciales admin del panel: **usuario** `sosamotos` / **contraseña** `SosaMot
 ### 1.1 Crear el proyecto
 
 1. Ir a [supabase.com](https://supabase.com) → **New project**
-2. Elegir nombre: `sosa-motos-sorteos`
+2. Elegir nombre: `facuregalos-sorteos`
 3. Elegir región: **South America (São Paulo)**
 4. Guardar la contraseña de la base de datos en un lugar seguro
 5. Esperar que el proyecto termine de crearse (~2 min)
@@ -81,7 +81,7 @@ Tipo: **Pagos** (payment)
 2. **API Keys** → crear una clave
 3. Pegar en `.env.local` como `RESEND_API_KEY`
 
-> Por ahora los emails salen desde `onboarding@resend.dev` (dominio de prueba de Resend). Para usar `@sosamotos.com.ar` hay que verificar el dominio en Resend → **Domains**.
+> Por ahora los emails salen desde `onboarding@resend.dev` (dominio de prueba de Resend). Para usar `@facuregalos.com` hay que verificar el dominio en Resend → **Domains**.
 
 ---
 
@@ -92,7 +92,7 @@ Tipo: **Pagos** (payment)
 1. Subir el proyecto a GitHub
 2. En [vercel.com](https://vercel.com) → **New Project** → importar el repo
 3. En **Environment Variables** cargar todas las variables de `.env.local`
-4. El dominio inicial será algo como `sosa-motos.vercel.app`
+4. El dominio inicial será algo como `facuregalos.vercel.app`
 
 ### 4.2 Imágenes — Supabase Storage
 
@@ -112,11 +112,11 @@ Llama a `/api/verificar-sorteos` con el header `Authorization: Bearer CRON_SECRE
 
 ## 5. Configuración inicial desde el Backoffice
 
-Entrá a `/backoffice` con `sosamotos` / `SosaMotos2025!` y configurá:
+Entrá a `/backoffice` con `facuregalos` / `Facuregalos2025!` y configurá:
 
 ### Cuenta de transferencia bancaria
 En **Configuración → Cuenta de transferencia**:
-- **Alias**: tu alias de Mercado Pago (ej: `agustin.sosa.mp`)
+- **Alias**: tu alias de Mercado Pago (ej: `facu.regalos.mp`)
 - **Titular**: nombre completo tal como aparece en la cuenta
 
 ### Crear el primer sorteo

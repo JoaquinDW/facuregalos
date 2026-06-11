@@ -144,8 +144,8 @@ export default function BackofficePage() {
     setEditarCuentaTransferenciaModalAbierto,
   ] = useState(false)
   const [configTransferencia, setConfigTransferencia] = useState({
-    alias: "sosamotos",
-    titular: "Agustín Sosa",
+    alias: "facuregalos",
+    titular: "Facuregalos",
   })
   const [premiosSecundarios, setPremiosSecundarios] =
     useState<PremiosSecundarios>({
@@ -1607,7 +1607,7 @@ export default function BackofficePage() {
                                     href={`https://wa.me/${
                                       comprador.telefono
                                     }?text=${encodeURIComponent(
-                                      `Hola ${comprador.nombre}! Te hablo de Sosa Motos...`,
+                                      `Hola ${comprador.nombre}! Te hablo de Facuregalos...`,
                                     )}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -1911,7 +1911,7 @@ export default function BackofficePage() {
                                       href={`https://wa.me/${
                                         comprador.telefono
                                       }?text=${encodeURIComponent(
-                                        `Hola ${comprador.nombre}! Te hablo de Sosa Motos...`,
+                                        `Hola ${comprador.nombre}! Te hablo de Facuregalos...`,
                                       )}`}
                                       target="_blank"
                                       rel="noopener noreferrer"

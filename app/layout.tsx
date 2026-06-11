@@ -17,35 +17,35 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.sosamotos.com.ar"),
-  title: "Sosa Motos",
-  description: "Web demo de Sosa Motos",
+  metadataBase: new URL("https://facuregalos.com"),
+  title: "Facuregalos",
+  description: "Facuregalos",
   generator: "v0.dev",
   icons: {
-    icon: "/sosamotos.jpeg",
-    shortcut: "/sosamotos.jpeg",
-    apple: "/sosamotos.jpeg",
+    icon: "/facuregalos.jpeg",
+    shortcut: "/facuregalos.jpeg",
+    apple: "/facuregalos.jpeg",
   },
   openGraph: {
     type: "website",
-    url: "https://www.sosamotos.com.ar",
-    siteName: "Sosa Motos",
-    title: "Sosa Motos",
-    description: "Web demo de Sosa Motos",
+    url: "https://facuregalos.com",
+    siteName: "Facuregalos",
+    title: "Facuregalos",
+    description: "Facuregalos",
     images: [
       {
-        url: "/sosamotos.jpeg",
+        url: "/facuregalos.jpeg",
         width: 1200,
         height: 630,
-        alt: "Logo de Sosa Motos",
+        alt: "Logo de Facuregalos",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sosa Motos",
-    description: "Web demo de Sosa Motos",
-    images: ["/sosamotos.jpeg"],
+    title: "Facuregalos",
+    description: "Facuregalos",
+    images: ["/facuregalos.jpeg"],
   },
 }
 
@@ -57,7 +57,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${bebasNeue.variable} ${dmSans.variable} ${GeistMono.variable}`}>
       <head>
-        <link rel="icon" href="/sosamotos.jpeg" />
+        <link rel="icon" href="/facuregalos.jpeg" />
       </head>
       <body className="font-sans">{children}</body>
     </html>

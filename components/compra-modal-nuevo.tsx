@@ -43,8 +43,8 @@ export function CompraModalNuevo({
   // Abrir directamente el modal de transferencia cuando se abre el modal
   const [transferenciaModalOpen, setTransferenciaModalOpen] = useState(false)
   const [configTransferencia, setConfigTransferencia] = useState({
-    alias: "sosamotos",
-    titular: "Agustín Sosa",
+    alias: "facuregalos",
+    titular: "Facuregalos",
   })
 
   useEffect(() => {

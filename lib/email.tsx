@@ -15,7 +15,7 @@ export interface EmailData {
 export async function enviarEmailConfirmacion(data: EmailData) {
   try {
     const { data: emailResult, error } = await resend.emails.send({
-      from: "Sosa Motos <onboarding@resend.dev>",
+      from: "Facuregalos <onboarding@resend.dev>",
       to: [data.email],
       subject: `🎉 ¡Confirmación de compra - ${data.sorteoNombre}}!`,
       html: generarHTMLEmail(data),
@@ -195,8 +195,8 @@ function generarHTMLEmail(data: EmailData): string {
       <div class="container">
         <div class="header">
           <div class="logo">
-            SOSA MOTOS 🏍️
-            <!-- <img src="/sosamotos.jpeg" alt="Sosa Motos" /> -->
+            FACUREGALOS 🎁
+            <!-- <img src="/facuregalos.jpeg" alt="Facuregalos" /> -->
           </div>
           <h1 class="title">¡Compra Confirmada!</h1>
           <p class="subtitle">Tu participación ha sido registrada exitosamente</p>
@@ -226,7 +226,7 @@ function generarHTMLEmail(data: EmailData): string {
 
         <div class="footer">
           <p>Este es un email automático, por favor no respondas a este mensaje.</p>
-          <p>© 2025 Sosa Motos. Todos los derechos reservados.</p>
+          <p>© 2025 Facuregalos. Todos los derechos reservados.</p>
         </div>
       </div>
     </body>
@@ -261,7 +261,7 @@ export async function enviarEmailTransferenciaAprobada(
     console.log("📧 T-shirt image URL in email function:", data.sorteoImagenUrl)
 
     const { data: emailResult, error } = await resend.emails.send({
-      from: "Sosa Motos <onboarding@resend.dev>",
+      from: "Facuregalos <onboarding@resend.dev>",
       to: [data.email],
       subject: `✅ ¡Transferencia Aprobada! - ${data.nombreSorteo}`,
       html: generarHTMLTransferenciaAprobada(data),
@@ -284,7 +284,7 @@ export async function enviarEmailTransferenciaRechazada(
 ) {
   try {
     const { data: emailResult, error } = await resend.emails.send({
-      from: "Sosa Motos <onboarding@resend.dev>",
+      from: "Facuregalos <onboarding@resend.dev>",
       to: [data.email],
       subject: "❌ Transferencia no Aprobada",
       html: generarHTMLTransferenciaRechazada(data),
@@ -472,8 +472,8 @@ function generarHTMLTransferenciaAprobada(
       <div class="container">
         <div class="header">
           <div class="logo">
-            SOSA MOTOS 🏍️
-            <!-- <img src="/sosamotos.jpeg" alt="Sosa Motos" /> -->
+            FACUREGALOS 🎁
+            <!-- <img src="/facuregalos.jpeg" alt="Facuregalos" /> -->
           </div>
           <h1 class="title">¡Transferencia Aprobada!</h1>
           <p class="subtitle">Tu pago fue verificado y aprobado exitosamente</p>
@@ -503,7 +503,7 @@ function generarHTMLTransferenciaAprobada(
 
         <div class="footer">
           <p>Este es un email automático, por favor no respondas a este mensaje.</p>
-          <p>© 2025 Sosa Motos. Todos los derechos reservados.</p>
+          <p>© 2025 Facuregalos. Todos los derechos reservados.</p>
         </div>
       </div>
     </body>
@@ -636,8 +636,8 @@ function generarHTMLTransferenciaRechazada(
       <div class="container">
         <div class="header">
           <div class="logo">
-            SOSA MOTOS 🏍️
-            <!-- <img src="/sosamotos.jpeg" alt="Sosa Motos" /> -->
+            FACUREGALOS 🎁
+            <!-- <img src="/facuregalos.jpeg" alt="Facuregalos" /> -->
           </div>
           <h1 class="title">Transferencia No Aprobada</h1>
           <p class="subtitle">Necesitamos que revises tu pago</p>
@@ -695,7 +695,7 @@ function generarHTMLTransferenciaRechazada(
 
         <div class="footer">
           <p>Este es un email automático, por favor no respondas a este mensaje.</p>
-          <p>© 2025 Sosa Motos. Todos los derechos reservados.</p>
+          <p>© 2025 Facuregalos. Todos los derechos reservados.</p>
         </div>
       </div>
     </body>

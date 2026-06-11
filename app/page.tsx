@@ -329,7 +329,7 @@ export default function LandingPage() {
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center space-y-6 max-w-md">
             <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-gray-700 mx-auto">
-              <img src="/sosamotos.jpeg" alt={contenido.marca} className="w-full h-full object-cover" />
+              <img src="/facuregalos.jpeg" alt={contenido.marca} className="w-full h-full object-cover" />
             </div>
             <div className="space-y-2">
               <h2 className="text-3xl font-display tracking-wider text-white uppercase">{contenido.proximamente_titulo}</h2>

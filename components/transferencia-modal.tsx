@@ -30,8 +30,8 @@ export function TransferenciaModal({
   onClose,
   pack,
   onSubmit,
-  alias = "sosamotos",
-  titular = "Agustín Sosa",
+  alias = "facuregalos",
+  titular = "Facuregalos",
 }: TransferenciaModalProps) {
   const [formData, setFormData] = useState({
     nombre: "",

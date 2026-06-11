@@ -26,18 +26,24 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
     setLoading(true)
     setError("")
 
-    // Credenciales hardcodeadas
-    if (
-      credentials.username === "sosamotos" &&
-      credentials.password === "SosaMotos2025!"
-    ) {
-      localStorage.setItem("admin_authenticated", "true")
-      onLogin()
-    } else {
-      setError("Credenciales incorrectas")
-    }
+    try {
+      const res = await fetch("/api/admin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      })
 
-    setLoading(false)
+      if (res.ok) {
+        localStorage.setItem("admin_authenticated", "true")
+        onLogin()
+      } else {
+        setError("Credenciales incorrectas")
+      }
+    } catch {
+      setError("No se pudo verificar. Intentá de nuevo.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

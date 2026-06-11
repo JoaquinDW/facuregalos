@@ -108,7 +108,7 @@ export type ClaveTextoContenido = {
 }[keyof ContenidoSitio]
 
 export const CONTENIDO_DEFAULTS: ContenidoSitio = {
-  marca: "Sosa Motos",
+  marca: "Facuregalos",
   whatsapp_url: "https://wa.me/5493795152063",
 
   hero_badge: "Premio Exclusivo",
@@ -176,7 +176,7 @@ export const CONTENIDO_DEFAULTS: ContenidoSitio = {
     "Estamos preparando el próximo sorteo. ¡Volvé pronto!",
   proximamente_boton: "Avisame cuando arranque",
 
-  footer_copyright: "© 2025 Sosa Motos. Todos los derechos reservados.",
+  footer_copyright: "© 2025 Facuregalos. Todos los derechos reservados.",
 }
 
 const CLAVE_CONTENIDO = "contenido_sitio"

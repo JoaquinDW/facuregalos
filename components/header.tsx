@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import Image from "next/image"
 
-export function Header({ marca = "Sosa Motos" }: { marca?: string }) {
+export function Header({ marca = "Facuregalos" }: { marca?: string }) {
   const [menuAbierto, setMenuAbierto] = useState(false)
 
   return (
@@ -15,7 +15,7 @@ export function Header({ marca = "Sosa Motos" }: { marca?: string }) {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-gray-700 group-hover:ring-[#ff0040]/60 transition-all duration-300">
-              <Image src="/sosamotos.jpeg" alt={marca} fill className="object-cover" />
+              <Image src="/facuregalos.jpeg" alt={marca} fill className="object-cover" />
             </div>
             <span className="text-lg font-semibold text-white tracking-wide group-hover:text-[#ff0040] transition-colors duration-300">
               {marca}

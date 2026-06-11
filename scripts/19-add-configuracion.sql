@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS configuracion (
 
 -- Valores por defecto para la cuenta de transferencia
 INSERT INTO configuracion (clave, valor)
-  VALUES ('alias_transferencia', 'sosamotos')
+  VALUES ('alias_transferencia', 'facuregalos')
   ON CONFLICT (clave) DO NOTHING;
 
 INSERT INTO configuracion (clave, valor)
-  VALUES ('titular_transferencia', 'Agustín Sosa')
+  VALUES ('titular_transferencia', 'Facuregalos')
   ON CONFLICT (clave) DO NOTHING;
