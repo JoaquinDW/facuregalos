@@ -26,33 +26,33 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://facuregalos.com"),
   title: "Facuregalos",
   description: "Facuregalos",
-  generator: "v0.dev",
-  icons: {
-    icon: "/facuregalos.jpeg",
-    shortcut: "/facuregalos.jpeg",
-    apple: "/facuregalos.jpeg",
-  },
-  openGraph: {
-    type: "website",
-    url: "https://facuregalos.com",
-    siteName: "Facuregalos",
-    title: "Facuregalos",
-    description: "Facuregalos",
-    images: [
-      {
-        url: "/facuregalos.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "Logo de Facuregalos",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Facuregalos",
-    description: "Facuregalos",
-    images: ["/facuregalos.jpeg"],
-  },
+
+  // icons: {
+  //   icon: "/facuregalos.jpeg",
+  //   shortcut: "/facuregalos.jpeg",
+  //   apple: "/facuregalos.jpeg",
+  // },
+  // openGraph: {
+  //   type: "website",
+  //   url: "https://facuregalos.com",
+  //   siteName: "Facuregalos",
+  //   title: "Facuregalos",
+  //   description: "Facuregalos",
+  //   images: [
+  //     {
+  //       url: "/facuregalos.jpeg",
+  //       width: 1200,
+  //       height: 630,
+  //       alt: "Logo de Facuregalos",
+  //     },
+  //   ],
+  // },
+  // twitter: {
+  //   card: "summary_large_image",
+  //   title: "Facuregalos",
+  //   description: "Facuregalos",
+  //   images: ["/facuregalos.jpeg"],
+  // },
 }
 
 export default function RootLayout({
@@ -61,10 +61,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${bebasNeue.variable} ${dmSans.variable} ${playfair.variable} ${GeistMono.variable}`}>
-      <head>
-        <link rel="icon" href="/facuregalos.jpeg" />
-      </head>
+    <html
+      lang="es"
+      className={`${bebasNeue.variable} ${dmSans.variable} ${playfair.variable} ${GeistMono.variable}`}
+    >
+      <head>{/* <link rel="icon" href="/facuregalos.jpeg" /> */}</head>
       <body className="font-sans">{children}</body>
     </html>
   )
