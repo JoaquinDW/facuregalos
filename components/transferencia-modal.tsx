@@ -23,6 +23,8 @@ interface TransferenciaModalProps {
   }) => void
   alias?: string
   titular?: string
+  cbu?: string
+  banco?: string
 }
 
 export function TransferenciaModal({
@@ -32,6 +34,8 @@ export function TransferenciaModal({
   onSubmit,
   alias = "facuregalos",
   titular = "Facuregalos",
+  cbu = "",
+  banco = "",
 }: TransferenciaModalProps) {
   const [formData, setFormData] = useState({
     nombre: "",
@@ -42,6 +46,7 @@ export function TransferenciaModal({
   const [dragOver, setDragOver] = useState(false)
   const [loading, setLoading] = useState(false)
   const [aliasCopiado, setAliasCopiado] = useState(false)
+  const [cbuCopiado, setCbuCopiado] = useState(false)
   const { toast } = useToast()
 
   const copiarAlias = async () => {
@@ -58,6 +63,24 @@ export function TransferenciaModal({
         variant: "destructive",
         title: "Error",
         description: "No se pudo copiar el alias",
+      })
+    }
+  }
+
+  const copiarCbu = async () => {
+    try {
+      await navigator.clipboard.writeText(cbu)
+      setCbuCopiado(true)
+      toast({
+        title: "¡CBU copiado!",
+        description: "Ya puedes pegarlo en tu app bancaria",
+      })
+      setTimeout(() => setCbuCopiado(false), 2000)
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo copiar el CBU",
       })
     }
   }
@@ -194,6 +217,47 @@ export function TransferenciaModal({
           </div>
           <p className="text-xs text-silver-muted mt-2">Titular: {titular}</p>
         </div>
+
+        {/* CBU */}
+        {cbu && (
+          <div className="mx-6 mb-5 rounded-xl bg-[#1a1812] border border-[#d4af37]/15 p-4">
+            <p className="text-xs text-silver-muted uppercase tracking-widest mb-2 font-semibold">
+              CBU / CVU
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-black rounded-lg border border-[#d4af37]/30 px-4 py-3 overflow-hidden">
+                <span className="font-mono text-sm text-gold-solid tracking-wide break-all">
+                  {cbu}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={copiarCbu}
+                aria-label="Copiar CBU"
+                className="btn-gold flex items-center justify-center w-11 h-11 rounded-lg flex-shrink-0"
+              >
+                {cbuCopiado ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <Copy className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+            {banco && (
+              <p className="text-xs text-silver-muted mt-2">Banco: {banco}</p>
+            )}
+          </div>
+        )}
+
+        {/* Banco (si no hay CBU pero sí banco) */}
+        {!cbu && banco && (
+          <div className="mx-6 mb-5 rounded-xl bg-[#1a1812] border border-[#d4af37]/15 p-4">
+            <p className="text-xs text-silver-muted uppercase tracking-widest mb-1 font-semibold">
+              Banco
+            </p>
+            <p className="text-base text-white">{banco}</p>
+          </div>
+        )}
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-3">

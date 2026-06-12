@@ -1829,26 +1829,35 @@ export async function obtenerConfiguracionTransferencia(): Promise<Configuracion
     const { data } = await supabase
       .from("configuracion")
       .select("clave, valor")
-      .in("clave", ["alias_transferencia", "titular_transferencia"])
+      .in("clave", ["alias_transferencia", "titular_transferencia", "cbu_transferencia", "banco_transferencia"])
 
     const map = Object.fromEntries(data?.map((r: { clave: string; valor: string }) => [r.clave, r.valor]) ?? [])
     return {
       alias: map["alias_transferencia"] ?? "facuregalos",
       titular: map["titular_transferencia"] ?? "Facuregalos",
+      cbu: map["cbu_transferencia"] ?? "",
+      banco: map["banco_transferencia"] ?? "",
     }
   } catch (error) {
     console.error("Error obteniendo configuración de transferencia:", error)
-    return { alias: "facuregalos", titular: "Facuregalos" }
+    return { alias: "facuregalos", titular: "Facuregalos", cbu: "", banco: "" }
   }
 }
 
 // Actualizar configuración de cuenta de transferencia
-export async function actualizarConfiguracionTransferencia(alias: string, titular: string): Promise<boolean> {
+export async function actualizarConfiguracionTransferencia(
+  alias: string,
+  titular: string,
+  cbu: string,
+  banco: string,
+): Promise<boolean> {
   try {
     const now = new Date().toISOString()
     const { error } = await supabase.from("configuracion").upsert([
       { clave: "alias_transferencia", valor: alias, updated_at: now },
       { clave: "titular_transferencia", valor: titular, updated_at: now },
+      { clave: "cbu_transferencia", valor: cbu, updated_at: now },
+      { clave: "banco_transferencia", valor: banco, updated_at: now },
     ])
 
     if (error) {

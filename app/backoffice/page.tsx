@@ -146,6 +146,8 @@ export default function BackofficePage() {
   const [configTransferencia, setConfigTransferencia] = useState({
     alias: "facuregalos",
     titular: "Facuregalos",
+    cbu: "",
+    banco: "",
   })
   const [premiosSecundarios, setPremiosSecundarios] =
     useState<PremiosSecundarios>({
@@ -2060,8 +2062,10 @@ export default function BackofficePage() {
         onClose={() => setEditarCuentaTransferenciaModalAbierto(false)}
         alias={configTransferencia.alias}
         titular={configTransferencia.titular}
-        onGuardado={(alias, titular) =>
-          setConfigTransferencia({ alias, titular })
+        cbu={configTransferencia.cbu}
+        banco={configTransferencia.banco}
+        onGuardado={(alias, titular, cbu, banco) =>
+          setConfigTransferencia({ alias, titular, cbu, banco })
         }
       />
 

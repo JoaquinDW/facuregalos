@@ -105,6 +105,8 @@ export interface GanadorPasado {
 export interface ConfiguracionTransferencia {
   alias: string
   titular: string
+  cbu: string
+  banco: string
 }
 
 export interface GanadorExpress {

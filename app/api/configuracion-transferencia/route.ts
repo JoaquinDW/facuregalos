@@ -13,13 +13,18 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { alias, titular } = await request.json()
+    const { alias, titular, cbu, banco } = await request.json()
 
     if (!alias || !titular) {
       return NextResponse.json({ error: "Alias y titular son requeridos" }, { status: 400 })
     }
 
-    const ok = await actualizarConfiguracionTransferencia(alias.trim(), titular.trim())
+    const ok = await actualizarConfiguracionTransferencia(
+      alias.trim(),
+      titular.trim(),
+      (cbu ?? "").trim(),
+      (banco ?? "").trim(),
+    )
 
     if (!ok) {
       return NextResponse.json({ error: "Error al guardar la configuración" }, { status: 500 })

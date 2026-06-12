@@ -45,6 +45,8 @@ export function CompraModalNuevo({
   const [configTransferencia, setConfigTransferencia] = useState({
     alias: "facuregalos",
     titular: "Facuregalos",
+    cbu: "",
+    banco: "",
   })
 
   useEffect(() => {
@@ -316,6 +318,8 @@ export function CompraModalNuevo({
         onSubmit={handleSubmitTransferencia}
         alias={configTransferencia.alias}
         titular={configTransferencia.titular}
+        cbu={configTransferencia.cbu}
+        banco={configTransferencia.banco}
       />
     </>
   )
