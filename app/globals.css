@@ -204,12 +204,32 @@ html {
     radial-gradient(ellipse 70% 45% at 90% 115%, rgba(200, 205, 213, 0.04), transparent 60%);
 }
 
-/* Texto con degradado dorado */
+/* Texto con degradado dorado brillante + brillo animado (shimmer + glow neón) */
+@keyframes gold-shine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes gold-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(244, 208, 95, 0.35)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(255, 224, 130, 0.75)); }
+}
+
 .text-gold {
-  background: linear-gradient(115deg, #f6e8b8 0%, #e3c462 35%, #d4af37 60%, #f0d98a 90%);
+  background: linear-gradient(
+    115deg,
+    #fff5cf 0%,
+    #ffe98a 22%,
+    #ffd75e 40%,
+    #fff5cf 55%,
+    #ffd75e 70%,
+    #f6e8b8 90%
+  );
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: gold-shine 4s linear infinite, gold-glow 2.6s ease-in-out infinite;
 }
 
 .text-gold-solid { color: var(--gold-300); }
@@ -370,5 +390,10 @@ html {
 
   .progress-lux-fill::after {
     animation: none;
+  }
+
+  .text-gold {
+    animation: none;
+    filter: none;
   }
 }
