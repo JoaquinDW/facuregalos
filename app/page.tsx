@@ -548,10 +548,10 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <Reveal className="text-center mb-12">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid mb-3">
-                Elegí tu pack
+                Elegí tus números
               </p>
               <h2 className="text-4xl lg:text-5xl font-lux text-silver">
-                Packs de chances
+                Compra tus números
               </h2>
             </Reveal>
 
@@ -577,7 +577,7 @@ export default function LandingPage() {
                       {pack.chances}
                     </p>
                     <p className="text-xs uppercase tracking-[0.25em] text-silver-muted mt-1 mb-4">
-                      Chances
+                      Números
                     </p>
 
                     <div className="divider-silver mb-4" />
