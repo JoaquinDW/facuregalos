@@ -5,43 +5,48 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import Image from "next/image"
 
+const NAV_LINKS = [
+  { href: "#packs", label: "Packs" },
+  { href: "#premios", label: "Premios" },
+  { href: "#consulta", label: "Mis números" },
+  { href: "#ganadores", label: "Ganadores" },
+]
+
 export function Header({ marca = "Facuregalos" }: { marca?: string }) {
   const [menuAbierto, setMenuAbierto] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-gray-800/60">
+    <header className="sticky top-0 z-50 bg-[#0c0b09]/90 backdrop-blur-md border-b border-[#d4af37]/15">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-gray-700 group-hover:ring-[#ff0040]/60 transition-all duration-300">
+            {/* <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-[#d4af37]/40 group-hover:ring-[#d4af37]/80 transition-all duration-300">
               <Image src="/facuregalos.jpeg" alt={marca} fill className="object-cover" />
-            </div>
-            <span className="text-lg font-semibold text-white tracking-wide group-hover:text-[#ff0040] transition-colors duration-300">
+            </div> */}
+            <span className="text-xl font-lux font-semibold text-gold tracking-wide">
               {marca}
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="text-gray-400 hover:text-white transition-colors duration-200 text-sm tracking-wide"
-            >
-              Inicio
-            </Link>
-            <Link
-              href="#ganadores"
-              className="text-gray-400 hover:text-white transition-colors duration-200 text-sm tracking-wide"
-            >
-              Ganadores
-            </Link>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-silver-muted hover:text-gold-solid transition-colors duration-200 text-sm tracking-wide"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Mobile menu button */}
           <button
             onClick={() => setMenuAbierto(!menuAbierto)}
-            className="md:hidden text-gray-400 hover:text-white transition-colors p-2"
+            aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
+            className="md:hidden text-silver-muted hover:text-gold-solid transition-colors p-2"
           >
             {menuAbierto ? (
               <X className="h-5 w-5" />
@@ -53,22 +58,18 @@ export function Header({ marca = "Facuregalos" }: { marca?: string }) {
 
         {/* Mobile Navigation */}
         {menuAbierto && (
-          <div className="md:hidden py-4 border-t border-gray-800/50">
+          <div className="md:hidden py-4 border-t border-[#d4af37]/10">
             <nav className="flex flex-col space-y-1">
-              <Link
-                href="/"
-                className="text-gray-400 hover:text-white transition-colors duration-200 px-2 py-2 text-sm tracking-wide"
-                onClick={() => setMenuAbierto(false)}
-              >
-                Inicio
-              </Link>
-              <Link
-                href="#ganadores"
-                className="text-gray-400 hover:text-white transition-colors duration-200 px-2 py-2 text-sm tracking-wide"
-                onClick={() => setMenuAbierto(false)}
-              >
-                Ganadores
-              </Link>
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-silver-muted hover:text-gold-solid transition-colors duration-200 px-2 py-2 text-sm tracking-wide"
+                  onClick={() => setMenuAbierto(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
         )}

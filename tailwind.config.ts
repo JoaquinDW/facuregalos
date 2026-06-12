@@ -14,6 +14,7 @@ const config: Config = {
   	extend: {
   		fontFamily: {
   			display: ['var(--font-display)', 'sans-serif'],
+  			lux: ['var(--font-lux)', 'Georgia', 'serif'],
   			sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui'],
   			mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
   		},

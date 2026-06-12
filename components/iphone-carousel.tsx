@@ -69,11 +69,14 @@ export default function IphoneCarousel() {
 
   return (
     <div className="relative w-full max-w-md sm:max-w-lg md:max-w-2xl mx-auto">
-      <div className="overflow-hidden rounded-xl" ref={emblaRef as any}>
+      <div
+        className="overflow-hidden rounded-2xl border border-[#d4af37]/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+        ref={emblaRef as any}
+      >
         <div className="flex">
           {finalSlides.map((src, idx) => (
             <div key={idx} className="min-w-full flex-shrink-0">
-              <div className="relative rounded-xl overflow-hidden shadow-2xl h-[500px] sm:h-[600px] md:h-[700px]">
+              <div className="relative overflow-hidden h-[500px] sm:h-[600px] md:h-[700px]">
                 {/* Imagen de fondo difuminada para llenar los espacios */}
                 <div className="absolute inset-0">
                   <Image
@@ -103,27 +106,30 @@ export default function IphoneCarousel() {
       {finalSlides.length > 1 && (
         <>
           <button
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 z-10"
+            aria-label="Imagen anterior"
+            className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 backdrop-blur-sm text-[#e3c462] border border-[#d4af37]/25 p-2 rounded-full transition-all duration-200 z-10"
             onClick={scrollPrev}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 z-10"
+            aria-label="Imagen siguiente"
+            className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 backdrop-blur-sm text-[#e3c462] border border-[#d4af37]/25 p-2 rounded-full transition-all duration-200 z-10"
             onClick={scrollNext}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Dots indicadores */}
-          <div className="flex justify-center mt-4 space-x-2">
+          <div className="flex justify-center mt-5 space-x-2">
             {finalSlides.map((_, idx) => (
               <button
                 key={idx}
-                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                aria-label={`Ir a la imagen ${idx + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 ${
                   idx === currentIndex
-                    ? "bg-red-500 glow-red"
-                    : "bg-gray-400 hover:bg-gray-300"
+                    ? "bg-[#d4af37] w-6"
+                    : "bg-[#9aa1ac]/40 hover:bg-[#9aa1ac]/70 w-2"
                 }`}
                 onClick={() => emblaApi?.scrollTo(idx)}
               />

@@ -1,15 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ShoppingCart, Clock, Trophy } from "lucide-react"
+import {
+  Sparkles,
+  Clock,
+  Trophy,
+  ShoppingCart,
+  ChevronDown,
+} from "lucide-react"
 import Link from "next/link"
 import { CompraModalNuevo } from "@/components/compra-modal-nuevo"
 import { Header } from "@/components/header"
 import { GanadoresPasados } from "@/components/ganadores-pasados"
 import { GanadoresExpress } from "@/components/ganadores-express"
 import { RedesSociales } from "@/components/redes-sociales"
+import { Reveal } from "@/components/reveal"
 import dynamic from "next/dynamic"
 
 const IphoneCarousel = dynamic(() => import("@/components/iphone-carousel"), {
@@ -57,7 +62,8 @@ export default function LandingPage() {
     created_at: string
   }> | null>(null)
   const [consultaError, setConsultaError] = useState<string | null>(null)
-  const [premiosSecundarios, setPremiosSecundarios] = useState<PremiosSecundarios | null>(null)
+  const [premiosSecundarios, setPremiosSecundarios] =
+    useState<PremiosSecundarios | null>(null)
   const [contenido, setContenido] = useState<ContenidoSitio>(CONTENIDO_DEFAULTS)
   const { toast } = useToast()
 
@@ -68,14 +74,12 @@ export default function LandingPage() {
       {
         chances: sorteo.cantidad_pack_1 || 10,
         precio: sorteo.precio_6_chances || 21000,
-        color: "from-green-400 to-green-600",
         descripcion: sorteo.descripcion_pack_1 || "Honda Wave 2025",
         visible: sorteo.pack_1_visible ?? true,
       },
       {
         chances: sorteo.cantidad_pack_2 || 25,
         precio: sorteo.precio_12_chances || 42000,
-        color: "from-lime-400 to-green-500",
         popular: true,
         descripcion:
           sorteo.descripcion_pack_2 ||
@@ -85,7 +89,6 @@ export default function LandingPage() {
       {
         chances: sorteo.cantidad_pack_3 || 50,
         precio: sorteo.precio_24_chances || 84000,
-        color: "from-emerald-400 to-lime-500",
         descripcion:
           sorteo.descripcion_pack_3 ||
           "Honda Wave 2025 + 5 chances pre-venta New Titan 2018",
@@ -94,14 +97,12 @@ export default function LandingPage() {
       {
         chances: sorteo.cantidad_pack_4 || 0,
         precio: sorteo.precio_pack_4 || 0,
-        color: "from-teal-400 to-emerald-600",
         descripcion: sorteo.descripcion_pack_4 || "",
         visible: sorteo.pack_4_visible ?? false,
       },
       {
         chances: sorteo.cantidad_pack_5 || 0,
         precio: sorteo.precio_pack_5 || 0,
-        color: "from-cyan-400 to-teal-600",
         descripcion: sorteo.descripcion_pack_5 || "",
         visible: sorteo.pack_5_visible ?? false,
       },
@@ -313,10 +314,12 @@ export default function LandingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-gradient flex items-center justify-center">
+      <div className="min-h-screen bg-lux flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-2 border-[#ff0040] border-t-transparent rounded-full animate-spin mx-auto opacity-80"></div>
-          <p className="text-gray-500 text-sm tracking-widest uppercase">Cargando</p>
+          <div className="w-12 h-12 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin mx-auto opacity-80"></div>
+          <p className="text-silver-muted text-sm tracking-[0.3em] uppercase">
+            Cargando
+          </p>
         </div>
       </div>
     )
@@ -324,30 +327,38 @@ export default function LandingPage() {
 
   if (!sorteo) {
     return (
-      <div className="min-h-screen bg-dark-gradient flex flex-col">
+      <div className="min-h-screen bg-lux flex flex-col">
         <Header marca={contenido.marca} />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center space-y-6 max-w-md">
-            <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-gray-700 mx-auto">
-              <img src="/facuregalos.jpeg" alt={contenido.marca} className="w-full h-full object-cover" />
+            <div className="w-20 h-20 rounded-full overflow-hidden ring-2 ring-[#d4af37]/40 mx-auto">
+              <img
+                src="/facuregalos.jpeg"
+                alt={contenido.marca}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="space-y-2">
-              <h2 className="text-3xl font-display tracking-wider text-white uppercase">{contenido.proximamente_titulo}</h2>
-              <p className="text-gray-500 text-sm">{contenido.proximamente_descripcion}</p>
+              <h2 className="text-4xl font-lux text-gold">
+                {contenido.proximamente_titulo}
+              </h2>
+              <p className="text-silver-muted text-sm">
+                {contenido.proximamente_descripcion}
+              </p>
             </div>
             <Link
               href={contenido.whatsapp_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block btn-neon px-6 py-3 rounded-lg font-semibold text-sm tracking-wide"
+              className="btn-gold inline-block px-7 py-3 rounded-full text-sm tracking-wide"
             >
               {contenido.proximamente_boton}
             </Link>
           </div>
         </div>
         <RedesSociales contenido={contenido} />
-        <footer className="bg-black border-t border-gray-900 py-6">
-          <div className="container mx-auto px-4 text-center text-gray-600 text-xs tracking-wide">
+        <footer className="border-t border-[#d4af37]/10 py-6">
+          <div className="container mx-auto px-4 text-center text-silver-muted text-xs tracking-wide">
             <p>{contenido.footer_copyright}</p>
           </div>
         </footer>
@@ -356,22 +367,161 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-gradient">
+    <div className="min-h-screen bg-lux">
       <Header marca={contenido.marca} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-screen flex items-center">
-        {/* Background Effects — muy sutiles */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 left-20 w-80 h-80 bg-[#ff0040]/4 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#ff0040]/3 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative container mx-auto px-4 py-10 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
-            {/* Carousel a la izquierda */}
+      <section className="relative overflow-hidden">
+        <div className="relative container mx-auto px-4 pt-14 pb-16 lg:pt-24 lg:pb-24">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Texto a la izquierda */}
             <div
-              className={`relative transition-all duration-700 ${
+              className={`space-y-7 text-center lg:text-left transition-all duration-700 ${
+                animacionVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              <div className="chip-gold inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.25em]">
+                <Sparkles className="w-3.5 h-3.5" />
+                {contenido.hero_badge}
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-lux font-semibold leading-[1.1] text-gold text-balance">
+                {conPlaceholders(contenido.hero_titulo, {
+                  premio: sorteo.titulo_remera || "Remera Exclusiva",
+                })}
+              </h1>
+
+              {sorteo?.estado !== "sorteado" && (
+                <p className="text-lg lg:text-xl text-silver font-light leading-relaxed max-w-md mx-auto lg:mx-0">
+                  {contenido.hero_subtitulo}
+                </p>
+              )}
+
+              {/* Progress / Evento finalizado */}
+              {sorteo?.estado === "sorteado" ? (
+                <div className="card-lux-silver p-6 text-center lg:text-left">
+                  <p className="text-lg font-semibold text-silver">
+                    Evento finalizado
+                  </p>
+                </div>
+              ) : (
+                <div className="card-lux p-5 sm:p-6 space-y-4 text-left">
+                  <span className="text-xs font-semibold text-silver-muted uppercase tracking-[0.2em]">
+                    {contenido.hero_chances_label}
+                  </span>
+                  <AnimatedProgress
+                    value={porcentajeVendido}
+                    className="h-2.5"
+                  />
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-lux font-semibold text-gold">
+                      {porcentajeVendido.toFixed(1)}%
+                    </span>
+                    <span className="text-sm text-silver-muted">
+                      {contenido.hero_completado_label}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Estados: completo / sorteado / cerrado */}
+              {sorteoCompleto && (
+                <div className="space-y-4 text-left">
+                  {sorteo?.estado === "completo" && (
+                    <div className="card-lux px-5 py-4">
+                      <h3 className="text-base font-semibold text-gold-solid mb-1 flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {contenido.hero_completo_titulo}
+                      </h3>
+                      <p className="text-sm text-silver-muted">
+                        {contenido.hero_completo_descripcion}
+                      </p>
+                      {sorteo.fecha_sorteo_realizado && (
+                        <p className="text-xs text-silver-muted opacity-70 mt-1">
+                          Prendas completadas el{" "}
+                          {new Date(
+                            sorteo.fecha_sorteo_realizado,
+                          ).toLocaleDateString("es-AR")}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {sorteo?.estado === "sorteado" && (
+                    <div className="border-gold-gradient px-5 py-4">
+                      <h3 className="text-base font-semibold text-gold-solid mb-2 flex items-center gap-2">
+                        <Trophy className="w-4 h-4" />
+                        {contenido.hero_sorteado_titulo}
+                      </h3>
+                      {sorteo.numero_ganador && (
+                        <div className="space-y-1.5">
+                          {sorteo.ganador_nombre && (
+                            <p className="text-sm text-silver">
+                              Ganador:{" "}
+                              <span className="font-semibold text-gold-solid">
+                                {sorteo.ganador_nombre}
+                              </span>
+                            </p>
+                          )}
+                          <p className="text-sm text-silver">
+                            Número Ganador:{" "}
+                            <span className="font-mono font-bold text-gold-solid text-lg">
+                              {sorteo.numero_ganador}
+                            </span>
+                          </p>
+                          <p className="text-xs text-silver-muted">
+                            Según la Quiniela de Buenos Aires del{" "}
+                            {sorteo.updated_at &&
+                              new Date(sorteo.updated_at).toLocaleDateString(
+                                "es-AR",
+                              )}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {(sorteo?.estado === "cerrado" ||
+                    (sorteo?.estado &&
+                      !sorteo.estado.match(/completo|sorteado/))) && (
+                    <div className="card-lux-silver px-5 py-4">
+                      <h3 className="text-base font-semibold text-silver mb-1">
+                        {contenido.hero_cerrado_titulo}
+                      </h3>
+                      <p className="text-sm text-silver-muted">
+                        {contenido.hero_cerrado_descripcion}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* CTAs */}
+              {!sorteoCompleto && (
+                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                  <a
+                    href="#packs"
+                    className="btn-gold inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-sm font-semibold tracking-wide"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    {contenido.packs_comprar_boton}
+                  </a>
+                  <a
+                    href="#premios"
+                    className="btn-silver inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-sm tracking-wide"
+                  >
+                    Ver premios
+                    <ChevronDown className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Showcase del premio a la derecha */}
+            <div
+              className={`relative transition-all duration-700 delay-200 ${
                 animacionVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-6"
@@ -381,276 +531,188 @@ export default function LandingPage() {
                 <IphoneCarousel />
 
                 {/* Floating badge */}
-                <div className="absolute -top-4 inset-x-0 mx-auto w-fit lg:inset-x-auto lg:right-16 lg:mx-0 xl:-right-2 bg-[#ff0040] text-white px-4 py-1.5 rounded-full font-semibold text-xs tracking-widest uppercase z-30 flex items-center gap-1.5">
+                <div className="absolute -top-4 inset-x-0 mx-auto w-fit lg:inset-x-auto lg:-right-2 lg:mx-0 btn-gold px-4 py-1.5 rounded-full text-[11px] font-semibold tracking-[0.2em] uppercase z-30 flex items-center gap-1.5 shadow-lg">
                   <Trophy className="w-3 h-3" />
                   {contenido.hero_badge}
                 </div>
               </div>
-
-              {/* Título bajo el carousel */}
-              <div className="text-center mt-8">
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display tracking-widest text-[#ff0040] uppercase">
-                  {conPlaceholders(contenido.hero_titulo, {
-                    premio: sorteo.titulo_remera || "Remera Exclusiva",
-                  })}
-                </h2>
-              </div>
-            </div>
-
-            {/* Contenido a la derecha */}
-            <div
-              className={`space-y-6 transition-all duration-700 delay-200 ${
-                animacionVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6"
-              }`}
-            >
-              {sorteo?.estado !== "sorteado" && (
-                <p className="text-2xl lg:text-3xl text-gray-300 font-light leading-snug">
-                  {contenido.hero_subtitulo}
-                </p>
-              )}
-
-              {/* Progress Bar / Evento finalizado */}
-              {sorteo?.estado === "sorteado" ? (
-                <div className="bg-[#111] border border-gray-800 rounded-xl p-6 text-center">
-                  <p className="text-lg font-semibold text-gray-300">
-                    Evento finalizado
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4 bg-[#111] border border-gray-800 rounded-xl p-5 sm:p-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-400 uppercase tracking-widest">
-                      {contenido.hero_chances_label}
-                    </span>
-                  </div>
-                  <AnimatedProgress value={porcentajeVendido} className="h-3" />
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-display tracking-wide text-[#ff0040]">
-                      {porcentajeVendido.toFixed(1)}%
-                    </span>
-                    <span className="text-sm text-gray-500">{contenido.hero_completado_label}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Estados: completo / sorteado / cerrado */}
-              {sorteoCompleto && (
-                <div className="space-y-4">
-                  {sorteo?.estado === "completo" && (
-                    <div className="bg-yellow-950/30 border border-yellow-800/40 text-yellow-300 px-5 py-4 rounded-xl">
-                      <h3 className="text-base font-semibold mb-1 flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        {contenido.hero_completo_titulo}
-                      </h3>
-                      <p className="text-sm text-yellow-300/70">
-                        {contenido.hero_completo_descripcion}
-                      </p>
-                      {sorteo.fecha_sorteo_realizado && (
-                        <p className="text-xs opacity-60 mt-1">
-                          Prendas completadas el{" "}
-                          {new Date(sorteo.fecha_sorteo_realizado).toLocaleDateString("es-AR")}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {sorteo?.estado === "sorteado" && (
-                    <div className="bg-green-950/30 border border-green-800/40 text-green-300 px-5 py-4 rounded-xl">
-                      <h3 className="text-base font-semibold mb-2 flex items-center gap-2">
-                        <Trophy className="w-4 h-4" />
-                        {contenido.hero_sorteado_titulo}
-                      </h3>
-                      {sorteo.numero_ganador && (
-                        <div className="space-y-1.5">
-                          {sorteo.ganador_nombre && (
-                            <p className="text-sm text-white">
-                              Ganador:{" "}
-                              <span className="font-semibold text-green-400">
-                                {sorteo.ganador_nombre}
-                              </span>
-                            </p>
-                          )}
-                          <p className="text-sm text-white">
-                            Número Ganador:{" "}
-                            <span className="font-mono font-bold text-green-400 text-lg">
-                              {sorteo.numero_ganador}
-                            </span>
-                          </p>
-                          <p className="text-xs text-green-300/60">
-                            Según la Quiniela de Buenos Aires del{" "}
-                            {sorteo.updated_at &&
-                              new Date(sorteo.updated_at).toLocaleDateString("es-AR")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {(sorteo?.estado === "cerrado" ||
-                    (sorteo?.estado && !sorteo.estado.match(/completo|sorteado/))) && (
-                    <div className="bg-[#ff0040]/10 border border-[#ff0040]/20 text-white px-5 py-4 rounded-xl">
-                      <h3 className="text-base font-semibold mb-1">
-                        {contenido.hero_cerrado_titulo}
-                      </h3>
-                      <p className="text-sm text-gray-400">{contenido.hero_cerrado_descripcion}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Pack cards */}
-              {!sorteoCompleto && (
-                <div className="space-y-3">
-                  {PACKS.map((pack, index) => (
-                    <div
-                      key={pack.chances}
-                      className={`transition-all duration-500 ${
-                        animacionVisible
-                          ? "opacity-100 translate-y-0"
-                          : "opacity-0 translate-y-6"
-                      }`}
-                      style={{ transitionDelay: `${(index + 3) * 150}ms` }}
-                    >
-                      {pack.popular && (
-                        <div className="mb-1.5">
-                          <span className="text-[10px] font-semibold uppercase tracking-widest text-[#ff0040] pl-1">
-                            {contenido.packs_popular_label}
-                          </span>
-                        </div>
-                      )}
-
-                      <div
-                        className={`rounded-xl p-4 sm:p-5 transition-all duration-200 ${
-                          pack.popular
-                            ? "bg-[#ff0040]/8 border border-[#ff0040]/35 hover:border-[#ff0040]/60"
-                            : "bg-[#111] border border-gray-800 hover:border-gray-600"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="text-lg sm:text-xl font-semibold text-white">
-                              {pack.chances} Chances
-                            </div>
-                            <div
-                              className={`text-xs font-medium mt-0.5 line-clamp-2 ${
-                                pack.descripcion ? "text-yellow-400/80" : "text-gray-500"
-                              }`}
-                            >
-                              {pack.descripcion || `${pack.chances} números asignados`}
-                            </div>
-                          </div>
-
-                          <div className="text-right flex-shrink-0">
-                            <div className="text-xl sm:text-2xl font-semibold text-[#ff0040]">
-                              ${pack.precio.toLocaleString()}
-                            </div>
-                            <Button
-                              onClick={() => handleCompra(pack)}
-                              size="sm"
-                              className="btn-neon mt-2 px-5 py-1.5 text-xs rounded-lg h-auto"
-                            >
-                              <ShoppingCart className="w-3 h-3 mr-1.5" />
-                              {contenido.packs_comprar_boton}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {!sorteoCompleto && PACKS.length > 1 && (
-                <p className="text-xs text-gray-600 text-center tracking-wide">
-                  {contenido.packs_nota}
-                </p>
-              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Sección de Premios */}
-      <section className="py-16 border-t border-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#ff0040] mb-3">
-              {contenido.premios_kicker}
-            </p>
-            <h2 className="text-5xl lg:text-7xl font-display tracking-wider text-white">
-              {contenido.premios_titulo}
-            </h2>
-          </div>
+      {/* Sección de Packs */}
+      {!sorteoCompleto && (
+        <section id="packs" className="py-20 scroll-mt-16">
+          <div className="divider-gold max-w-4xl mx-auto mb-20" />
+          <div className="container mx-auto px-4">
+            <Reveal className="text-center mb-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid mb-3">
+                Elegí tu pack
+              </p>
+              <h2 className="text-4xl lg:text-5xl font-lux text-silver">
+                Packs de chances
+              </h2>
+            </Reveal>
 
-          <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            {/* 1er Premio */}
-            <div className="bg-[#111] border border-gray-800 rounded-xl p-8 text-center hover:border-gray-700 transition-colors duration-200">
-              <p className="text-xs font-semibold uppercase tracking-widest text-yellow-500/70 mb-3">
-                {contenido.premios_primer_label}
-              </p>
-              <p className="text-2xl lg:text-3xl font-display tracking-wide uppercase text-white">
-                {sorteo.titulo_remera || "Remera Exclusiva"}
-              </p>
+            <div className="flex flex-wrap justify-center gap-5 max-w-5xl mx-auto items-stretch">
+              {PACKS.map((pack, index) => (
+                <Reveal
+                  key={pack.chances}
+                  delay={index * 100}
+                  className="w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] flex"
+                >
+                  <div
+                    className={`relative flex flex-col w-full p-7 text-center ${
+                      pack.popular ? "border-gold-gradient" : "card-lux-silver"
+                    }`}
+                  >
+                    {pack.popular && (
+                      <span className="btn-gold absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em]">
+                        {contenido.packs_popular_label}
+                      </span>
+                    )}
+
+                    <p className="text-5xl font-lux font-semibold text-gold mt-2">
+                      {pack.chances}
+                    </p>
+                    <p className="text-xs uppercase tracking-[0.25em] text-silver-muted mt-1 mb-4">
+                      Chances
+                    </p>
+
+                    <div className="divider-silver mb-4" />
+
+                    <p
+                      className={`text-sm leading-relaxed flex-1 ${
+                        pack.descripcion ? "text-silver" : "text-silver-muted"
+                      }`}
+                    >
+                      {pack.descripcion || `${pack.chances} números asignados`}
+                    </p>
+
+                    <p className="text-3xl font-semibold text-gold-solid mt-5">
+                      ${pack.precio.toLocaleString()}
+                    </p>
+
+                    <button
+                      onClick={() => handleCompra(pack)}
+                      className={`mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-semibold tracking-wide w-full ${
+                        pack.popular ? "btn-gold" : "btn-silver"
+                      }`}
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      {contenido.packs_comprar_boton}
+                    </button>
+                  </div>
+                </Reveal>
+              ))}
             </div>
 
-            {/* Premios Secundarios */}
-            {premiosSecundarios?.visible && premiosSecundarios.numeros.length > 0 && (
-              <div className="bg-[#111] border border-yellow-500/20 rounded-xl p-6 md:p-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Trophy className="w-4 h-4 text-yellow-500/70" />
-                  <p className="text-xs font-semibold uppercase tracking-widest text-yellow-500/70">
-                    {contenido.premios_sec_label}
-                  </p>
-                </div>
-
-                <p className="text-base font-semibold text-yellow-300 mb-4">
-                  {premiosSecundarios.titulo}
+            {PACKS.length > 1 && (
+              <Reveal delay={200}>
+                <p className="text-xs text-silver-muted text-center tracking-wide mt-8">
+                  {contenido.packs_nota}
                 </p>
+              </Reveal>
+            )}
+          </div>
+        </section>
+      )}
 
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {premiosSecundarios.numeros.map((num) => (
-                    <span
-                      key={num}
-                      className="bg-yellow-400/8 border border-yellow-400/25 text-yellow-300 font-mono font-bold text-xl rounded-lg px-4 py-1.5"
-                    >
-                      {num}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  {contenido.premios_sec_descripcion.split("{monto}").map((parte, i, partes) => (
-                    <span key={i}>
-                      {parte}
-                      {i < partes.length - 1 && (
-                        <span className="font-semibold text-gray-300">{premiosSecundarios.monto}</span>
-                      )}
-                    </span>
-                  ))}
+      {/* Sección de Premios */}
+      <section id="premios" className="py-20 scroll-mt-16">
+        <div className="divider-silver max-w-4xl mx-auto mb-20" />
+        <div className="container mx-auto px-4">
+          <Reveal className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid mb-3">
+              {contenido.premios_kicker}
+            </p>
+            <h2 className="text-5xl lg:text-6xl font-lux text-gold">
+              {contenido.premios_titulo}
+            </h2>
+          </Reveal>
+
+          <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+            {/* 1er Premio */}
+            <Reveal variant="left">
+              <div className="border-gold-gradient p-8 text-center h-full flex flex-col justify-center">
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid mb-3">
+                  {contenido.premios_primer_label}
+                </p>
+                <p className="text-2xl lg:text-3xl font-lux text-silver">
+                  {sorteo.titulo_remera || "Remera Exclusiva"}
                 </p>
               </div>
-            )}
+            </Reveal>
+
+            {/* Premios Secundarios */}
+            {premiosSecundarios?.visible &&
+              premiosSecundarios.numeros.length > 0 && (
+                <Reveal variant="right" delay={100}>
+                  <div className="card-lux p-6 md:p-8 h-full">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Trophy className="w-4 h-4 text-[#d4af37]" />
+                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid">
+                        {contenido.premios_sec_label}
+                      </p>
+                    </div>
+
+                    <p className="text-base font-semibold text-silver mb-4">
+                      {premiosSecundarios.titulo}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {premiosSecundarios.numeros.map((num) => (
+                        <span
+                          key={num}
+                          className="chip-gold font-mono font-bold text-xl rounded-lg px-4 py-1.5"
+                        >
+                          {num}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-silver-muted leading-relaxed">
+                      {contenido.premios_sec_descripcion
+                        .split("{monto}")
+                        .map((parte, i, partes) => (
+                          <span key={i}>
+                            {parte}
+                            {i < partes.length - 1 && (
+                              <span className="font-semibold text-silver">
+                                {premiosSecundarios.monto}
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                    </p>
+                  </div>
+                </Reveal>
+              )}
           </div>
         </div>
       </section>
 
       {/* Sección FAQ */}
-      <section className="py-16 border-t border-gray-900">
-        <div className="container mx-auto px-4 max-w-xl">
-          <h2 className="text-4xl lg:text-5xl font-display tracking-wider text-white mb-10">
-            {contenido.faq_titulo}
-          </h2>
+      <section className="py-20">
+        <div className="divider-silver max-w-4xl mx-auto mb-20" />
+        <div className="container mx-auto px-4 max-w-2xl">
+          <Reveal>
+            <h2 className="text-4xl lg:text-5xl font-lux text-silver mb-12 text-center">
+              {contenido.faq_titulo}
+            </h2>
+          </Reveal>
 
-          <div className="space-y-8">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
-                {contenido.faq_pregunta_fecha}
-              </p>
-              <div className="border-l-2 border-[#ff0040]/40 pl-4">
-                <span className="text-white text-lg font-medium">
+          <div className="grid sm:grid-cols-2 gap-5">
+            <Reveal variant="left">
+              <div className="card-lux-silver p-6 h-full">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-solid mb-3">
+                  {contenido.faq_pregunta_fecha}
+                </p>
+                <span className="text-silver text-lg font-medium">
                   {sorteo?.fecha_sorteo
-                    ? new Date(sorteo.fecha_sorteo + "T12:00:00").toLocaleDateString("es-AR", {
+                    ? new Date(
+                        sorteo.fecha_sorteo + "T12:00:00",
+                      ).toLocaleDateString("es-AR", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
@@ -658,76 +720,80 @@ export default function LandingPage() {
                     : "Próximamente"}
                 </span>
               </div>
-            </div>
+            </Reveal>
 
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
-                {contenido.faq_pregunta_ganador}
-              </p>
+            <Reveal variant="right" delay={100}>
               <Link
                 href={contenido.faq_link_quiniela}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="block h-full"
               >
-                <div className="border-l-2 border-[#ff0040]/40 pl-4 hover:border-[#ff0040] transition-colors duration-200">
-                  <span className="text-[#ff0040] text-base font-medium">
+                <div className="card-lux p-6 h-full cursor-pointer">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-solid mb-3">
+                    {contenido.faq_pregunta_ganador}
+                  </p>
+                  <span className="text-gold-solid text-base font-medium underline-offset-4 hover:underline">
                     {contenido.faq_respuesta_ganador}
                   </span>
                 </div>
               </Link>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* Sección Consultá tus números */}
-      <section className="py-16 border-t border-gray-900">
+      <section id="consulta" className="py-20 scroll-mt-16">
+        <div className="divider-gold max-w-4xl mx-auto mb-20" />
         <div className="container mx-auto px-4 max-w-xl">
-          <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#ff0040] mb-3">
+          <Reveal className="text-center mb-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid mb-3">
               {contenido.consulta_kicker}
             </p>
-            <h2 className="text-4xl lg:text-5xl font-display tracking-wider text-white mb-2">
+            <h2 className="text-4xl lg:text-5xl font-lux text-silver mb-3">
               {contenido.consulta_titulo}
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-silver-muted text-sm">
               {contenido.consulta_descripcion}
             </p>
-          </div>
+          </Reveal>
 
-          <form
-            onSubmit={consultarMisNumeros}
-            className="flex flex-col sm:flex-row gap-2 mb-6"
-          >
-            <input
-              type="email"
-              value={consultaEmail}
-              onChange={(e) => setConsultaEmail(e.target.value)}
-              placeholder={contenido.consulta_placeholder}
-              disabled={consultaLoading}
-              className="flex-1 bg-[#111] border border-gray-800 text-white placeholder:text-gray-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#ff0040]/60 focus:ring-1 focus:ring-[#ff0040]/30 transition-colors disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={consultaLoading || !consultaEmail.trim()}
-              className="btn-neon px-7 py-3 rounded-lg text-sm font-semibold tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none whitespace-nowrap"
+          <Reveal delay={100}>
+            <form
+              onSubmit={consultarMisNumeros}
+              className="flex flex-col sm:flex-row gap-2 mb-6"
             >
-              {consultaLoading ? "Buscando..." : contenido.consulta_boton}
-            </button>
-          </form>
+              <input
+                type="email"
+                value={consultaEmail}
+                onChange={(e) => setConsultaEmail(e.target.value)}
+                placeholder={contenido.consulta_placeholder}
+                disabled={consultaLoading}
+                className="input-lux flex-1 rounded-full px-5 py-3 text-sm disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={consultaLoading || !consultaEmail.trim()}
+                className="btn-gold px-7 py-3 rounded-full text-sm font-semibold tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none whitespace-nowrap"
+              >
+                {consultaLoading ? "Buscando..." : contenido.consulta_boton}
+              </button>
+            </form>
+          </Reveal>
 
           {consultaError && (
-            <div className="bg-red-950/30 border border-red-900/40 rounded-lg p-4 text-center text-red-400 text-sm mb-4">
+            <div className="bg-red-950/30 border border-red-900/40 rounded-xl p-4 text-center text-red-400 text-sm mb-4">
               {consultaError}
             </div>
           )}
 
           {consultaResultados !== null && consultaResultados.length === 0 && (
-            <div className="bg-[#111] border border-gray-800 rounded-xl p-6 text-center">
-              <p className="text-gray-500 text-sm">
+            <div className="card-lux-silver p-6 text-center">
+              <p className="text-silver-muted text-sm">
                 {contenido.consulta_vacio}
               </p>
-              <p className="text-gray-600 text-xs mt-2">
+              <p className="text-silver-muted text-xs mt-2 opacity-70">
                 {contenido.consulta_vacio_nota}
               </p>
             </div>
@@ -736,13 +802,15 @@ export default function LandingPage() {
           {consultaResultados !== null && consultaResultados.length > 0 && (
             <div className="space-y-4">
               {consultaResultados.map((p) => (
-                <div key={p.id} className="bg-[#111] border border-gray-800 rounded-xl p-5">
+                <div key={p.id} className="card-lux p-5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                     <div>
-                      <p className="text-white font-semibold">{p.nombre}</p>
-                      <p className="text-gray-500 text-xs mt-0.5">{p.sorteo_nombre}</p>
+                      <p className="text-silver font-semibold">{p.nombre}</p>
+                      <p className="text-silver-muted text-xs mt-0.5">
+                        {p.sorteo_nombre}
+                      </p>
                     </div>
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs text-silver-muted">
                       {new Date(p.created_at).toLocaleDateString("es-AR", {
                         day: "numeric",
                         month: "long",
@@ -750,7 +818,7 @@ export default function LandingPage() {
                       })}
                     </span>
                   </div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-solid mb-3">
                     Tus {p.cantidad_chances} números asignados
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -759,7 +827,7 @@ export default function LandingPage() {
                       .map((numero) => (
                         <span
                           key={numero}
-                          className="bg-[#ff0040]/10 text-[#ff0040] font-mono font-semibold px-3 py-1 rounded text-sm border border-[#ff0040]/15"
+                          className="chip-gold font-mono font-semibold px-3 py-1 rounded text-sm"
                         >
                           {numero}
                         </span>
@@ -773,7 +841,9 @@ export default function LandingPage() {
       </section>
 
       {/* Ganadores Express */}
-      {sorteo && <GanadoresExpress sorteoId={sorteo.id} contenido={contenido} />}
+      {sorteo && (
+        <GanadoresExpress sorteoId={sorteo.id} contenido={contenido} />
+      )}
 
       {/* Ganadores Pasados */}
       <GanadoresPasados contenido={contenido} />
@@ -782,34 +852,37 @@ export default function LandingPage() {
       <RedesSociales contenido={contenido} />
 
       {/* Footer */}
-      <footer className="bg-black border-t border-gray-900 py-10">
+      <footer className="py-12">
+        <div className="divider-gold max-w-5xl mx-auto mb-10" />
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <span className="text-base font-semibold text-white tracking-wide">
+            <span className="text-lg font-lux font-semibold text-gold tracking-wide">
               {contenido.marca}
             </span>
             <div className="flex space-x-6">
               <Link
                 href={contenido.whatsapp_url}
-                className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
+                className="text-silver-muted hover:text-gold-solid transition-colors text-sm"
               >
                 Contacto
               </Link>
               <Link
                 href="/terminos"
-                className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
+                className="text-silver-muted hover:text-gold-solid transition-colors text-sm"
               >
                 Términos
               </Link>
             </div>
           </div>
-          <div className="border-t border-gray-900 mt-6 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <p className="text-gray-700 text-xs">{contenido.footer_copyright}</p>
+          <div className="border-t border-[#c8cdd5]/10 mt-6 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p className="text-silver-muted text-xs opacity-70">
+              {contenido.footer_copyright}
+            </p>
             <Link
               href="https://linktr.ee/deweertstudio"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-700 hover:text-gray-500 transition-colors text-xs"
+              className="text-silver-muted text-xs opacity-70 hover:opacity-100 hover:text-gold-solid transition-all"
             >
               Desarrollado por De Weert Studio
             </Link>

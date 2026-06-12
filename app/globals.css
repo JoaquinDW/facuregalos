@@ -170,3 +170,205 @@
   border: none;
   font-weight: bold;
 }
+
+/* ============================================================
+   Facuregalos · Sistema dorado / plateado (solo landing)
+   Las clases "neon" de arriba quedan para backoffice y pago.
+   ============================================================ */
+
+:root {
+  --gold-100: #f6e8b8;
+  --gold-200: #f0d98a;
+  --gold-300: #e3c462;
+  --gold-400: #d4af37;
+  --gold-500: #b8902f;
+  --gold-600: #8a6d1f;
+  --silver-100: #e8eaee;
+  --silver-200: #c8cdd5;
+  --silver-300: #9aa1ac;
+  --silver-400: #6b7280;
+  --lux-bg: #0c0b09;
+  --lux-surface: #14120e;
+  --lux-surface-2: #1a1812;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fondo principal: negro cálido con brillos dorado/plateado muy sutiles */
+.bg-lux {
+  background-color: var(--lux-bg);
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -15%, rgba(212, 175, 55, 0.07), transparent 65%),
+    radial-gradient(ellipse 70% 45% at 90% 115%, rgba(200, 205, 213, 0.04), transparent 60%);
+}
+
+/* Texto con degradado dorado */
+.text-gold {
+  background: linear-gradient(115deg, #f6e8b8 0%, #e3c462 35%, #d4af37 60%, #f0d98a 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gold-solid { color: var(--gold-300); }
+.text-silver { color: var(--silver-200); }
+.text-silver-muted { color: var(--silver-300); }
+
+/* Botón dorado principal */
+.btn-gold {
+  background: linear-gradient(135deg, #f0d98a 0%, #d4af37 55%, #b8902f 100%);
+  color: #1a1405;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn-gold:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(212, 175, 55, 0.28);
+}
+
+.btn-gold:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Botón secundario plateado (outline) */
+.btn-silver {
+  background: rgba(200, 205, 213, 0.05);
+  border: 1px solid rgba(200, 205, 213, 0.25);
+  color: var(--silver-200);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.btn-silver:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.06);
+  color: var(--gold-200);
+}
+
+/* Cards */
+.card-lux {
+  background: linear-gradient(180deg, var(--lux-surface-2) 0%, var(--lux-surface) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.13);
+  border-radius: 1rem;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-lux:hover {
+  border-color: rgba(212, 175, 55, 0.32);
+}
+
+.card-lux-silver {
+  background: linear-gradient(180deg, var(--lux-surface-2) 0%, var(--lux-surface) 100%);
+  border: 1px solid rgba(200, 205, 213, 0.12);
+  border-radius: 1rem;
+  transition: border-color 0.25s ease;
+}
+
+.card-lux-silver:hover {
+  border-color: rgba(200, 205, 213, 0.28);
+}
+
+/* Borde degradado dorado (pack destacado) */
+.border-gold-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #1b1810, #14120d) padding-box,
+    linear-gradient(135deg, #f0d98a, #8a6d1f 45%, #f0d98a 75%, #b8902f) border-box;
+  border-radius: 1rem;
+}
+
+/* Línea ornamental dorada */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.55), transparent);
+}
+
+.divider-silver {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200, 205, 213, 0.18), transparent);
+}
+
+/* Chips de números */
+.chip-gold {
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  color: var(--gold-200);
+}
+
+/* Inputs */
+.input-lux {
+  background: var(--lux-surface);
+  border: 1px solid rgba(200, 205, 213, 0.15);
+  color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-lux::placeholder { color: var(--silver-400); }
+
+.input-lux:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+/* Barra de progreso dorada */
+.progress-lux-track {
+  background: rgba(200, 205, 213, 0.08);
+  border: 1px solid rgba(200, 205, 213, 0.1);
+}
+
+.progress-lux-fill {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #b8902f 0%, #f0d98a 50%, #d4af37 100%);
+}
+
+.progress-lux-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: shimmer 2.5s infinite;
+}
+
+/* Animaciones de scroll-reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-left { transform: translateX(-32px); }
+.reveal-right { transform: translateX(32px); }
+.reveal-scale { transform: scale(0.94); }
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .progress-lux-fill::after {
+    animation: none;
+  }
+}

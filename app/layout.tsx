@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Bebas_Neue, DM_Sans } from "next/font/google"
+import { Bebas_Neue, DM_Sans, Playfair_Display } from "next/font/google"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
@@ -7,6 +7,12 @@ const bebasNeue = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-display",
+  display: "swap",
+})
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-lux",
   display: "swap",
 })
 
@@ -55,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${bebasNeue.variable} ${dmSans.variable} ${GeistMono.variable}`}>
+    <html lang="es" className={`${bebasNeue.variable} ${dmSans.variable} ${playfair.variable} ${GeistMono.variable}`}>
       <head>
         <link rel="icon" href="/facuregalos.jpeg" />
       </head>
