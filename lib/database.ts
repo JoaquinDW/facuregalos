@@ -1,5 +1,5 @@
 import { supabase } from "./supabase"
-import type { Comprador, Sorteo, GanadorExpress, ConfiguracionTransferencia } from "./supabase"
+import type { Comprador, Sorteo, GanadorExpress, ConfiguracionTransferencia, MuralGanador } from "./supabase"
 
 // Verificar si las tablas existen
 export async function verificarTablas(): Promise<boolean> {
@@ -1819,6 +1819,133 @@ export async function eliminarGanadorExpress(id: string): Promise<boolean> {
     return true
   } catch (error) {
     console.error("Error eliminando ganador express:", error)
+    return false
+  }
+}
+
+// ============================================
+// Mural de ganadores anteriores (collage de fotos)
+// ============================================
+
+// Obtener fotos visibles del mural (para la landing)
+export async function obtenerMuralGanadores(): Promise<MuralGanador[]> {
+  try {
+    const { data, error } = await supabase
+      .from("mural_ganadores")
+      .select("*")
+      .eq("visible", true)
+      .order("orden", { ascending: true })
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error obteniendo mural de ganadores:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error obteniendo mural de ganadores:", error)
+    return []
+  }
+}
+
+// Obtener todas las fotos del mural (para el backoffice)
+export async function obtenerTodasMuralGanadores(): Promise<MuralGanador[]> {
+  try {
+    const { data, error } = await supabase
+      .from("mural_ganadores")
+      .select("*")
+      .order("orden", { ascending: true })
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Error obteniendo mural de ganadores:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error obteniendo mural de ganadores:", error)
+    return []
+  }
+}
+
+// Agregar una foto al mural
+export async function crearMuralGanador(foto: {
+  imagen_url: string
+  nombre?: string | null
+  orden?: number
+}): Promise<MuralGanador | null> {
+  try {
+    const { data, error } = await supabase
+      .from("mural_ganadores")
+      .insert({
+        imagen_url: foto.imagen_url,
+        nombre: foto.nombre || null,
+        orden: foto.orden ?? 0,
+        visible: true,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error creando foto del mural:", error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error creando foto del mural:", error)
+    return null
+  }
+}
+
+// Actualizar una foto del mural (nombre, orden, visibilidad)
+export async function actualizarMuralGanador(
+  id: string,
+  actualizaciones: Partial<{
+    imagen_url: string
+    nombre: string | null
+    orden: number
+    visible: boolean
+  }>
+): Promise<MuralGanador | null> {
+  try {
+    const { data, error } = await supabase
+      .from("mural_ganadores")
+      .update(actualizaciones)
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error actualizando foto del mural:", error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error actualizando foto del mural:", error)
+    return null
+  }
+}
+
+// Eliminar una foto del mural
+export async function eliminarMuralGanador(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from("mural_ganadores")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+      console.error("Error eliminando foto del mural:", error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error eliminando foto del mural:", error)
     return false
   }
 }

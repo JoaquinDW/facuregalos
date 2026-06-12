@@ -120,3 +120,13 @@ export interface GanadorExpress {
   created_at: string
   updated_at: string
 }
+
+export interface MuralGanador {
+  id: string
+  imagen_url: string
+  nombre: string | null
+  orden: number
+  visible: boolean
+  created_at: string
+  updated_at: string
+}

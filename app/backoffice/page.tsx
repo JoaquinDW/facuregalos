@@ -47,6 +47,7 @@ import {
   Settings,
   ChevronDown,
   ExternalLink,
+  LayoutGrid,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -69,6 +70,7 @@ import { EditarFechaSorteoModal } from "@/components/editar-fecha-sorteo-modal"
 import { TestSorteos } from "@/components/test-sorteos"
 import { CarouselManager } from "@/components/carousel-manager"
 import { GestionGanadores } from "@/components/gestion-ganadores"
+import { GestionMural } from "@/components/gestion-mural"
 import { GanadoresExpressModal } from "@/components/ganadores-express-modal"
 import { ConfirmarEliminarModal } from "@/components/confirmar-eliminar-modal"
 import { FinalizarSorteoModal } from "@/components/finalizar-sorteo-modal"
@@ -1171,12 +1173,21 @@ export default function BackofficePage() {
               <ImageIcon className="w-4 h-4 mr-2" />
               Carrusel
             </TabsTrigger>
-            <TabsTrigger
+            {/* Ganadores Pasados: ocultado a pedido de Facu (se reemplazó por el Mural).
+                Dejar comentado por si se quiere reactivar en el futuro. */}
+            {/* <TabsTrigger
               value="ganadores"
               className="data-[state=active]:bg-gray-100"
             >
               <Trophy className="w-4 h-4 mr-2" />
               Ganadores Pasados
+            </TabsTrigger> */}
+            <TabsTrigger
+              value="mural"
+              className="data-[state=active]:bg-gray-100"
+            >
+              <LayoutGrid className="w-4 h-4 mr-2" />
+              Mural Ganadores
             </TabsTrigger>
             <TabsTrigger
               value="express"
@@ -1988,8 +1999,14 @@ export default function BackofficePage() {
             )}
           </TabsContent>
 
-          <TabsContent value="ganadores" className="space-y-6">
+          {/* Ganadores Pasados: ocultado a pedido de Facu (ver TabsTrigger comentado arriba).
+              Dejar comentado por si se quiere reactivar. */}
+          {/* <TabsContent value="ganadores" className="space-y-6">
             <GestionGanadores />
+          </TabsContent> */}
+
+          <TabsContent value="mural" className="space-y-6">
+            <GestionMural />
           </TabsContent>
 
           <TabsContent value="premios-sec" className="space-y-6">

@@ -13,6 +13,7 @@ import { CompraModalNuevo } from "@/components/compra-modal-nuevo"
 import { Header } from "@/components/header"
 import { GanadoresPasados } from "@/components/ganadores-pasados"
 import { GanadoresExpress } from "@/components/ganadores-express"
+import { MuralGanadores } from "@/components/mural-ganadores"
 import { RedesSociales } from "@/components/redes-sociales"
 import { Reveal } from "@/components/reveal"
 import dynamic from "next/dynamic"
@@ -845,8 +846,12 @@ export default function LandingPage() {
         <GanadoresExpress sorteoId={sorteo.id} contenido={contenido} />
       )}
 
-      {/* Ganadores Pasados */}
-      <GanadoresPasados contenido={contenido} />
+      {/* Ganadores Pasados: reemplazado por el Mural de Ganadores (a pedido de Facu).
+          Dejar comentado por si se quiere reactivar en el futuro. */}
+      {/* <GanadoresPasados contenido={contenido} /> */}
+
+      {/* Mural de Ganadores Anteriores (collage de fotos) */}
+      <MuralGanadores />
 
       {/* Links de interés / Redes sociales */}
       <RedesSociales contenido={contenido} />
