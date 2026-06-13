@@ -467,7 +467,12 @@ export default function BackofficePage() {
     const pillH = 56
     const pillX = (canvas.width - pillW) / 2
     const pillY = 48
-    const pillGrad = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY)
+    const pillGrad = ctx.createLinearGradient(
+      pillX,
+      pillY,
+      pillX + pillW,
+      pillY,
+    )
     pillGrad.addColorStop(0, C.goldLight)
     pillGrad.addColorStop(0.55, C.gold)
     pillGrad.addColorStop(1, C.goldDeep)
@@ -500,7 +505,8 @@ export default function BackofficePage() {
     ctx.stroke()
 
     // Mensaje de participación
-    const premio = sorteoActual.titulo_remera || sorteoActual.nombre || "tu premio"
+    const premio =
+      sorteoActual.titulo_remera || sorteoActual.nombre || "tu premio"
     ctx.fillStyle = C.silver
     ctx.font = "24px Arial"
     ctx.textAlign = "left"
@@ -536,7 +542,7 @@ export default function BackofficePage() {
     yPos += 18
     ctx.fillStyle = C.silver
     ctx.font = "bold 26px Arial"
-    ctx.fillText(`Total de Chances: ${comprador.cantidad_chances}`, 50, yPos)
+    ctx.fillText(`Numeros en Total: ${comprador.cantidad_chances}`, 50, yPos)
 
     // Precio pagado
     yPos += 45
