@@ -7,7 +7,9 @@ import { obtenerSorteoActivo } from "@/lib/database"
 
 export async function POST(request: Request) {
   try {
-    const { tipo } = await request.json()
+    const { tipo, email } = await request.json()
+
+    const emailDestino = email || "balthasardeweert@gmail.com"
 
     // Obtener el sorteo activo de la base de datos
     const sorteo = await obtenerSorteoActivo()
@@ -25,8 +27,8 @@ export async function POST(request: Request) {
 
     // Datos de prueba
     const datosConfirmacion = {
-      nombre: "Gonza",
-      email: "Gonzalomasdeu@hotmail.com",
+      nombre: "Facuregalos",
+      email: emailDestino,
       cantidadChances: 3,
       numerosAsignados: [7613, 7614, 7615],
       precioPagado: 15000,
@@ -35,8 +37,8 @@ export async function POST(request: Request) {
     }
 
     const datosTransferenciaAprobada = {
-      nombre: "Gonza",
-      email: "Gonzalomasdeu@hotmail.com",
+      nombre: "Facuregalos",
+      email: emailDestino,
       cantidadChances: 3,
       numerosAsignados: [7613, 7614, 7615],
       precioPagado: 15000,
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
     if (resultado.success) {
       return NextResponse.json({
         success: true,
-        message: `Email de ${tipo} enviado exitosamente a Gonzalomasdeu@hotmail.com`,
+        message: `Email de ${tipo} enviado exitosamente a ${emailDestino}`,
         data: resultado.data,
       })
     } else {

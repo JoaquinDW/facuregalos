@@ -6,7 +6,7 @@ const SECCIONES = [
   {
     titulo: "1. Objeto del Sitio",
     texto:
-      "El presente sitio web tiene por finalidad la comercialización de productos digitales consistentes en diseños exclusivos de remeras en formato descargable.",
+      "El presente sitio web tiene por finalidad la comercialización de productos digitales consistentes en de libros digitales en formato descargable.",
   },
   {
     titulo: "2. Productos Digitales",
@@ -36,7 +36,7 @@ const SECCIONES = [
   {
     titulo: "7. Premio Gratuito",
     texto:
-      "El premio gratis por la compra de la remera digital se realiza por lotería de Buenos Aires cuando se venden todas las remeras digitales disponibles, y se anunciará por la página quién recibe el regalo 🎁🤩",
+      "El premio gratis por la compra del libro digital se realiza por lotería de Buenos Aires cuando se venden todos los libros digitales disponibles, y se anunciará por la página quién recibe el regalo",
   },
   {
     titulo: "8. Requisitos para Ganar",
@@ -71,9 +71,7 @@ export default function TerminosPage() {
                   <h2 className="text-lg font-semibold text-gold-solid mb-2">
                     {seccion.titulo}
                   </h2>
-                  <p className="text-silver leading-relaxed">
-                    {seccion.texto}
-                  </p>
+                  <p className="text-silver leading-relaxed">{seccion.texto}</p>
                 </section>
               ))}
             </div>

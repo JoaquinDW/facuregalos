@@ -394,56 +394,130 @@ export default function BackofficePage() {
     const ticketsAreaHeight = numRows * (ticketHeight + ticketGap) + ticketGap
 
     // Calcular altura total necesaria:
-    // Header: ~150px
-    // Info comprador: ~250px (variable según contactos)
+    // Header (sello + título): ~240px
+    // Info comprador: ~300px (variable según contactos)
     // Espaciado pre-tickets: ~80px
     // Tickets: ticketsAreaHeight
     // Footer: ~200px
-    const estimatedHeight = 150 + 300 + 80 + ticketsAreaHeight + 200
+    const estimatedHeight = 240 + 300 + 80 + ticketsAreaHeight + 200
 
     // Configurar dimensiones
     canvas.width = 800
-    canvas.height = Math.max(950, estimatedHeight)
+    canvas.height = Math.max(1050, estimatedHeight)
 
-    // Fondo
-    ctx.fillStyle = "#ffffff"
+    // Paleta de marca (coincide con la landing y los emails)
+    const C = {
+      bg: "#0c0b09",
+      goldLight: "#f0d98a",
+      gold: "#d4af37",
+      goldDeep: "#b8902f",
+      goldBright: "#ffe9a8",
+      silver: "#c8cdd5",
+      silverMuted: "#9aa1ac",
+      dark: "#1a1405",
+    }
+
+    // Helper: rectángulo redondeado (con fallback si roundRect no existe)
+    const roundRect = (
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      r: number,
+    ) => {
+      ctx.beginPath()
+      if (typeof (ctx as any).roundRect === "function") {
+        ;(ctx as any).roundRect(x, y, w, h, r)
+      } else {
+        ctx.moveTo(x + r, y)
+        ctx.arcTo(x + w, y, x + w, y + h, r)
+        ctx.arcTo(x + w, y + h, x, y + h, r)
+        ctx.arcTo(x, y + h, x, y, r)
+        ctx.arcTo(x, y, x + w, y, r)
+        ctx.closePath()
+      }
+    }
+
+    // Fondo oscuro de lujo
+    ctx.fillStyle = C.bg
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // Borde
-    ctx.strokeStyle = "#000000"
-    ctx.lineWidth = 4
-    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20)
+    // Glow dorado sutil en la parte superior
+    const glow = ctx.createRadialGradient(
+      canvas.width / 2,
+      0,
+      0,
+      canvas.width / 2,
+      0,
+      canvas.width * 0.7,
+    )
+    glow.addColorStop(0, "rgba(212, 175, 55, 0.16)")
+    glow.addColorStop(1, "rgba(212, 175, 55, 0)")
+    ctx.fillStyle = glow
+    ctx.fillRect(0, 0, canvas.width, 320)
+
+    // Borde dorado redondeado
+    ctx.strokeStyle = C.gold
+    ctx.lineWidth = 3
+    roundRect(16, 16, canvas.width - 32, canvas.height - 32, 24)
+    ctx.stroke()
+
+    // Sello FACUREGALOS (pill dorado, centrado)
+    const pillW = 320
+    const pillH = 56
+    const pillX = (canvas.width - pillW) / 2
+    const pillY = 48
+    const pillGrad = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY)
+    pillGrad.addColorStop(0, C.goldLight)
+    pillGrad.addColorStop(0.55, C.gold)
+    pillGrad.addColorStop(1, C.goldDeep)
+    ctx.fillStyle = pillGrad
+    roundRect(pillX, pillY, pillW, pillH, 14)
+    ctx.fill()
+    ctx.fillStyle = C.dark
+    ctx.font = "bold 26px Arial"
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillText("FACUREGALOS", canvas.width / 2, pillY + pillH / 2 + 1)
+    ctx.textBaseline = "alphabetic"
 
     // Título
-    ctx.fillStyle = "#000000"
-    ctx.font = "bold 40px Arial"
+    ctx.fillStyle = C.goldBright
+    ctx.font = "bold 38px Arial"
     ctx.textAlign = "center"
-    ctx.fillText("COMPROBANTE DE COMPRA", canvas.width / 2, 80)
+    ctx.fillText("COMPROBANTE DE COMPRA", canvas.width / 2, 165)
 
-    // Línea decorativa
-    ctx.strokeStyle = "#fbbf24"
-    ctx.lineWidth = 3
+    // Línea decorativa dorada (con degradé)
+    const lineGrad = ctx.createLinearGradient(150, 0, 650, 0)
+    lineGrad.addColorStop(0, "rgba(212, 175, 55, 0)")
+    lineGrad.addColorStop(0.5, C.gold)
+    lineGrad.addColorStop(1, "rgba(212, 175, 55, 0)")
+    ctx.strokeStyle = lineGrad
+    ctx.lineWidth = 2
     ctx.beginPath()
-    ctx.moveTo(150, 110)
-    ctx.lineTo(650, 110)
+    ctx.moveTo(150, 192)
+    ctx.lineTo(650, 192)
     ctx.stroke()
 
     // Mensaje de participación
-    ctx.fillStyle = "#000000"
+    const premio = sorteoActual.titulo_remera || sorteoActual.nombre || "tu premio"
+    ctx.fillStyle = C.silver
     ctx.font = "24px Arial"
     ctx.textAlign = "left"
-    ctx.fillText("¡Estás participando por una HONDA WAVE 2026 0KM!", 50, 160)
+    ctx.fillText(`¡Estás participando por ${premio}!`, 50, 245)
 
     // Información del comprador
-    ctx.font = "bold 28px Arial"
-    ctx.fillText("Comprador:", 50, 215)
+    ctx.fillStyle = C.goldLight
+    ctx.font = "bold 26px Arial"
+    ctx.fillText("Comprador", 50, 300)
+    ctx.fillStyle = C.silver
     ctx.font = "24px Arial"
-    ctx.fillText(comprador.nombre, 50, 250)
+    ctx.fillText(comprador.nombre, 50, 335)
 
     // Contacto
-    let yPos = 285
+    let yPos = 370
     ctx.font = "20px Arial"
-    ctx.fillStyle = "#555555"
+    ctx.fillStyle = C.silverMuted
 
     if (comprador.email) {
       ctx.fillText(`Email: ${comprador.email}`, 50, yPos)
@@ -459,14 +533,14 @@ export default function BackofficePage() {
     }
 
     // Cantidad de chances
-    yPos += 15
-    ctx.fillStyle = "#000000"
-    ctx.font = "bold 28px Arial"
+    yPos += 18
+    ctx.fillStyle = C.silver
+    ctx.font = "bold 26px Arial"
     ctx.fillText(`Total de Chances: ${comprador.cantidad_chances}`, 50, yPos)
 
     // Precio pagado
     yPos += 45
-    ctx.fillStyle = "#16a34a"
+    ctx.fillStyle = C.goldBright
     ctx.font = "bold 32px Arial"
     ctx.fillText(
       `Total Pagado: $${comprador.precio_pagado.toLocaleString()}`,
@@ -476,8 +550,8 @@ export default function BackofficePage() {
 
     // Números asignados
     yPos += 55
-    ctx.fillStyle = "#000000"
-    ctx.font = "bold 28px Arial"
+    ctx.fillStyle = C.goldLight
+    ctx.font = "bold 26px Arial"
     ctx.fillText("Tus Números:", 50, yPos)
 
     // Dibujar números como tickets (estilo de la imagen)
@@ -512,19 +586,19 @@ export default function BackofficePage() {
         "M30 13.75c0.414-0 0.75-0.336 0.75-0.75v0-5c-0-0.414-0.336-0.75-0.75-0.75h-28c-0.414 0-0.75 0.336-0.75 0.75v0 5c0 0.414 0.336 0.75 0.75 0.75v0c1.243 0 2.25 1.007 2.25 2.25s-1.007 2.25-2.25 2.25v0c-0.414 0-0.75 0.336-0.75 0.75v0 5c0 0.414 0.336 0.75 0.75 0.75h28c0.414-0 0.75-0.336 0.75-0.75v0-5c-0-0.414-0.336-0.75-0.75-0.75v0c-1.243 0-2.25-1.007-2.25-2.25s1.007-2.25 2.25-2.25v0z",
       )
 
-      // Usar un gradiente de amarillo/dorado más atractivo
+      // Gradiente dorado de marca
       const gradient = ctx.createLinearGradient(0, 8, 0, 24)
-      gradient.addColorStop(0, "#fbbf24") // Amarillo más claro
-      gradient.addColorStop(1, "#f59e0b") // Naranja dorado
+      gradient.addColorStop(0, C.goldLight) // Dorado claro
+      gradient.addColorStop(1, C.gold) // Dorado
       ctx.fillStyle = gradient
       ctx.fill(ticketPath)
 
-      ctx.strokeStyle = "#b45309" // Borde más oscuro/dorado
+      ctx.strokeStyle = C.goldDeep // Borde dorado oscuro
       ctx.lineWidth = 0.6
       ctx.stroke(ticketPath)
 
       // Número en el centro del ticket (en coordenadas del SVG escalado)
-      ctx.fillStyle = "#000000"
+      ctx.fillStyle = C.dark
       ctx.font = `bold ${28 / scale}px Arial` // Tamaño de fuente más grande
       ctx.textAlign = "center"
       ctx.textBaseline = "middle"
@@ -542,9 +616,22 @@ export default function BackofficePage() {
     // Actualizar yPos para el resto del contenido
     yPos = currentY + ticketHeight + 40
 
+    // Divisor dorado antes del footer
+    yPos = canvas.height - 140
+    const footGrad = ctx.createLinearGradient(150, 0, 650, 0)
+    footGrad.addColorStop(0, "rgba(212, 175, 55, 0)")
+    footGrad.addColorStop(0.5, "rgba(212, 175, 55, 0.55)")
+    footGrad.addColorStop(1, "rgba(212, 175, 55, 0)")
+    ctx.strokeStyle = footGrad
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(150, yPos)
+    ctx.lineTo(650, yPos)
+    ctx.stroke()
+
     // Fecha
     yPos = canvas.height - 100
-    ctx.fillStyle = "#666666"
+    ctx.fillStyle = C.silverMuted
     ctx.font = "18px Arial"
     ctx.textAlign = "center"
     ctx.fillText(
@@ -557,9 +644,9 @@ export default function BackofficePage() {
 
     // Nota final
     yPos += 40
-    ctx.fillStyle = "#000000"
-    ctx.font = "20px Arial"
-    ctx.fillText("Mucha suerte y siempre con fe!", canvas.width / 2, yPos)
+    ctx.fillStyle = C.goldBright
+    ctx.font = "bold 22px Arial"
+    ctx.fillText("Mucha suerte!", canvas.width / 2, yPos)
 
     // Convertir canvas a imagen y descargar
     canvas.toBlob((blob) => {

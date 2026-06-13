@@ -121,7 +121,7 @@ export const CONTENIDO_DEFAULTS: ContenidoSitio = {
     "El sorteo se realizará mañana a las 14:00 hs según el primer número de la Quiniela de Buenos Aires",
   hero_sorteado_titulo: "Resultados",
   hero_cerrado_titulo: "¡Gracias por participar!",
-  hero_cerrado_descripcion: "Mucha suerte a todos y siempre con fe!",
+  hero_cerrado_descripcion: "Mucha suerte a todos!",
 
   packs_popular_label: "Más popular",
   packs_comprar_boton: "Comprar",
