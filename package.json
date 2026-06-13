@@ -9,6 +9,7 @@
     "lint": "next lint",
     "prueba-rapida": "tsx scripts/prueba-rapida.ts",
     "scrapper": "tsx lib/sorteoScrapper.ts",
+    "scrape-libros": "tsx scripts/scrape-libros-drive.ts",
     "start": "next start",
     "test-sorteos": "tsx scripts/test-sorteos.ts",
     "verificar-sorteos": "tsx scripts/cron-sorteos.ts"

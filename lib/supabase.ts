@@ -137,6 +137,7 @@ export interface LibroDigital {
   descripcion?: string
   imagen_url?: string
   link_drive: string
+  categoria?: string | null
   orden: number
   visible: boolean
   created_at: string

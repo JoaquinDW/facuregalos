@@ -175,7 +175,7 @@ export default function BackofficePage() {
   const [libros, setLibros] = useState<LibroDigital[]>([])
   const [libroModalAbierto, setLibroModalAbierto] = useState(false)
   const [libroEditando, setLibroEditando] = useState<LibroDigital | null>(null)
-  const [libroForm, setLibroForm] = useState({ nombre: "", descripcion: "", imagen_url: "", link_drive: "", orden: "0" })
+  const [libroForm, setLibroForm] = useState({ nombre: "", descripcion: "", imagen_url: "", link_drive: "", orden: "0", categoria: "" })
   const [guardandoLibro, setGuardandoLibro] = useState(false)
 
   const [confirmarEliminarModalAbierto, setConfirmarEliminarModalAbierto] =
@@ -795,10 +795,11 @@ export default function BackofficePage() {
         imagen_url: libro.imagen_url ?? "",
         link_drive: libro.link_drive,
         orden: String(libro.orden),
+        categoria: libro.categoria ?? "",
       })
     } else {
       setLibroEditando(null)
-      setLibroForm({ nombre: "", descripcion: "", imagen_url: "", link_drive: "", orden: String(libros.length) })
+      setLibroForm({ nombre: "", descripcion: "", imagen_url: "", link_drive: "", orden: String(libros.length), categoria: "" })
     }
     setLibroModalAbierto(true)
   }
@@ -816,6 +817,7 @@ export default function BackofficePage() {
         imagen_url: libroForm.imagen_url || undefined,
         link_drive: libroForm.link_drive,
         orden: Number(libroForm.orden),
+        categoria: libroForm.categoria || null,
       })
       if (ok) {
         setLibros((prev) => prev.map((l) => l.id === libroEditando.id ? { ...l, ...libroForm, orden: Number(libroForm.orden) } : l))
@@ -824,7 +826,7 @@ export default function BackofficePage() {
         toast({ title: "Error al actualizar", variant: "destructive" })
       }
     } else {
-      const nuevo = await crearLibro(libroForm.nombre, libroForm.link_drive, libroForm.descripcion, libroForm.imagen_url, Number(libroForm.orden))
+      const nuevo = await crearLibro(libroForm.nombre, libroForm.link_drive, libroForm.descripcion, libroForm.imagen_url, Number(libroForm.orden), libroForm.categoria)
       if (nuevo) {
         setLibros((prev) => [...prev, nuevo])
         toast({ title: "Libro agregado" })
@@ -2360,15 +2362,25 @@ export default function BackofficePage() {
                       placeholder="https://drive.google.com/..."
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="libro-orden">Orden</Label>
-                    <Input
-                      id="libro-orden"
-                      type="number"
-                      value={libroForm.orden}
-                      onChange={(e) => setLibroForm((f) => ({ ...f, orden: e.target.value }))}
-                      className="w-24"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="libro-categoria">Categoría</Label>
+                      <Input
+                        id="libro-categoria"
+                        value={libroForm.categoria}
+                        onChange={(e) => setLibroForm((f) => ({ ...f, categoria: e.target.value }))}
+                        placeholder="Ej: Autoayuda"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="libro-orden">Orden</Label>
+                      <Input
+                        id="libro-orden"
+                        type="number"
+                        value={libroForm.orden}
+                        onChange={(e) => setLibroForm((f) => ({ ...f, orden: e.target.value }))}
+                      />
+                    </div>
                   </div>
                 </div>
                 <DialogFooter>

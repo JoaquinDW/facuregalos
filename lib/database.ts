@@ -2109,11 +2109,12 @@ export async function crearLibro(
   descripcion?: string,
   imagen_url?: string,
   orden?: number,
+  categoria?: string,
 ): Promise<LibroDigital | null> {
   try {
     const { data, error } = await supabase
       .from("libros")
-      .insert({ nombre, link_drive, descripcion: descripcion || null, imagen_url: imagen_url || null, orden: orden ?? 0 })
+      .insert({ nombre, link_drive, descripcion: descripcion || null, imagen_url: imagen_url || null, orden: orden ?? 0, categoria: categoria || null })
       .select()
       .single()
     if (error) {
@@ -2129,7 +2130,7 @@ export async function crearLibro(
 
 export async function actualizarLibro(
   id: string,
-  fields: Partial<Pick<LibroDigital, "nombre" | "descripcion" | "imagen_url" | "link_drive" | "orden" | "visible">>,
+  fields: Partial<Pick<LibroDigital, "nombre" | "descripcion" | "imagen_url" | "link_drive" | "orden" | "visible" | "categoria">>,
 ): Promise<boolean> {
   try {
     const { error } = await supabase.from("libros").update(fields).eq("id", id)

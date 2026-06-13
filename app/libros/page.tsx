@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { BookOpen, ExternalLink, Mail, Search, Lock, Check, AlertCircle } from "lucide-react"
+import { BookOpen, ExternalLink, Mail, Search, Lock, Check, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import { Header } from "@/components/header"
 import { obtenerLibrosPorEmail, reclamarLibro } from "@/lib/database"
 import type { LibroDigital } from "@/lib/supabase"
@@ -19,6 +19,12 @@ export default function LibrosPage() {
   const [reclamando, setReclamando] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  const [categoriaActiva, setCategoriaActiva] = useState<string>("todas")
+  const [query, setQuery] = useState("")
+  const [pagina, setPagina] = useState(1)
+
+  const POR_PAGINA = 20
+
   const buscarLibros = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
@@ -26,6 +32,9 @@ export default function LibrosPage() {
     setNoEncontrado(false)
     setResultado(null)
     setErrorMsg(null)
+    setCategoriaActiva("todas")
+    setQuery("")
+    setPagina(1)
 
     const res = await obtenerLibrosPorEmail(email.trim().toLowerCase())
     if (res) {
@@ -61,6 +70,26 @@ export default function LibrosPage() {
 
   const saldoUsado = reclamados.size
   const cuotaAlcanzada = resultado ? saldoUsado >= resultado.cuota : false
+
+  const categorias = resultado
+    ? (Array.from(new Set(resultado.libros.map((l) => l.categoria).filter(Boolean))) as string[]).sort()
+    : []
+  const librosFiltrados = resultado
+    ? resultado.libros.filter((l) => {
+        const okCat = categoriaActiva === "todas" || l.categoria === categoriaActiva
+        const okQuery = !query.trim() || l.nombre.toLowerCase().includes(query.trim().toLowerCase())
+        return okCat && okQuery
+      })
+    : []
+
+  const totalPaginas = Math.max(1, Math.ceil(librosFiltrados.length / POR_PAGINA))
+  const paginaActual = Math.min(pagina, totalPaginas)
+  const librosPagina = librosFiltrados.slice((paginaActual - 1) * POR_PAGINA, paginaActual * POR_PAGINA)
+
+  const cambiarFiltro = (fn: () => void) => {
+    fn()
+    setPagina(1)
+  }
 
   return (
     <div className="min-h-screen bg-lux">
@@ -187,8 +216,41 @@ export default function LibrosPage() {
                     Si tuviste algún problema, escribinos por WhatsApp.
                   </p>
                 )}
+
+                {/* Filtros compactos: buscador + categoría */}
+                <div className="max-w-5xl mx-auto mb-6 flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-silver-muted" />
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => cambiarFiltro(() => setQuery(e.target.value))}
+                      placeholder="Buscar por título..."
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-[#d4af37]/20 text-silver placeholder:text-silver-muted text-sm focus:outline-none focus:border-[#d4af37]/60 transition-colors"
+                    />
+                  </div>
+                  {categorias.length > 1 && (
+                    <select
+                      value={categoriaActiva}
+                      onChange={(e) => cambiarFiltro(() => setCategoriaActiva(e.target.value))}
+                      className="sm:w-64 px-3 py-2.5 rounded-xl bg-white/5 border border-[#d4af37]/20 text-silver text-sm focus:outline-none focus:border-[#d4af37]/60 transition-colors cursor-pointer"
+                    >
+                      <option value="todas" className="bg-[#15130e]">Todas las categorías</option>
+                      {categorias.map((cat) => (
+                        <option key={cat} value={cat} className="bg-[#15130e]">{cat}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {librosFiltrados.length === 0 ? (
+                  <p className="text-center text-silver-muted text-sm py-12">
+                    No hay libros que coincidan con tu búsqueda.
+                  </p>
+                ) : (
+                <>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 max-w-5xl mx-auto">
-                  {resultado.libros.map((libro) => {
+                  {librosPagina.map((libro) => {
                     const elegido = reclamados.has(libro.id)
                     const bloqueado = !elegido && cuotaAlcanzada
 
@@ -277,6 +339,33 @@ export default function LibrosPage() {
                     )
                   })}
                 </div>
+
+                {/* Paginado */}
+                {totalPaginas > 1 && (
+                  <div className="max-w-5xl mx-auto mt-10 flex items-center justify-center gap-4">
+                    <button
+                      onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                      disabled={paginaActual === 1}
+                      className="flex items-center gap-1 text-sm text-silver-muted hover:text-gold disabled:opacity-30 disabled:hover:text-silver-muted transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Anterior
+                    </button>
+                    <span className="text-silver text-sm tabular-nums">
+                      Página {paginaActual} de {totalPaginas}
+                    </span>
+                    <button
+                      onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                      disabled={paginaActual === totalPaginas}
+                      className="flex items-center gap-1 text-sm text-silver-muted hover:text-gold disabled:opacity-30 disabled:hover:text-silver-muted transition-colors"
+                    >
+                      Siguiente
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                </>
+                )}
               </>
             )}
           </div>
