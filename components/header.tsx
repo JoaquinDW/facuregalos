@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "#premios", label: "Premios" },
   { href: "#consulta", label: "Mis números" },
   { href: "#ganadores", label: "Ganadores" },
+  { href: "/libros", label: "Libros" },
 ]
 
 export function Header({ marca = "Facuregalos" }: { marca?: string }) {

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase"
-import type { Comprador, Sorteo, GanadorExpress, ConfiguracionTransferencia, MuralGanador } from "./supabase"
+import type { Comprador, Sorteo, GanadorExpress, ConfiguracionTransferencia, MuralGanador, LibroDigital } from "./supabase"
 
 // Verificar si las tablas existen
 export async function verificarTablas(): Promise<boolean> {
@@ -2063,5 +2063,205 @@ export async function actualizarPremiosSecundarios(premios: PremiosSecundarios):
   } catch (error) {
     console.error("Error actualizando premios secundarios:", error)
     return false
+  }
+}
+
+// ── Libros digitales ────────────────────────────────────────────────────────
+
+export async function obtenerLibros(): Promise<LibroDigital[]> {
+  try {
+    const { data, error } = await supabase
+      .from("libros")
+      .select("*")
+      .eq("visible", true)
+      .order("orden", { ascending: true })
+    if (error) {
+      console.error("Error obteniendo libros:", error)
+      return []
+    }
+    return data ?? []
+  } catch (error) {
+    console.error("Error obteniendo libros:", error)
+    return []
+  }
+}
+
+export async function obtenerTodosLosLibros(): Promise<LibroDigital[]> {
+  try {
+    const { data, error } = await supabase
+      .from("libros")
+      .select("*")
+      .order("orden", { ascending: true })
+    if (error) {
+      console.error("Error obteniendo todos los libros:", error)
+      return []
+    }
+    return data ?? []
+  } catch (error) {
+    console.error("Error obteniendo todos los libros:", error)
+    return []
+  }
+}
+
+export async function crearLibro(
+  nombre: string,
+  link_drive: string,
+  descripcion?: string,
+  imagen_url?: string,
+  orden?: number,
+): Promise<LibroDigital | null> {
+  try {
+    const { data, error } = await supabase
+      .from("libros")
+      .insert({ nombre, link_drive, descripcion: descripcion || null, imagen_url: imagen_url || null, orden: orden ?? 0 })
+      .select()
+      .single()
+    if (error) {
+      console.error("Error creando libro:", error.code, error.message, error.details, error.hint)
+      return null
+    }
+    return data
+  } catch (error) {
+    console.error("Error creando libro (catch):", error)
+    return null
+  }
+}
+
+export async function actualizarLibro(
+  id: string,
+  fields: Partial<Pick<LibroDigital, "nombre" | "descripcion" | "imagen_url" | "link_drive" | "orden" | "visible">>,
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("libros").update(fields).eq("id", id)
+    if (error) {
+      console.error("Error actualizando libro:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error actualizando libro:", error)
+    return false
+  }
+}
+
+export async function eliminarLibro(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("libros").delete().eq("id", id)
+    if (error) {
+      console.error("Error eliminando libro:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error eliminando libro:", error)
+    return false
+  }
+}
+
+// Cuántos libros puede descargar el comprador según su pack (máx. 3).
+// Menor pack = 1, mayor pack = 3, resto = 2.
+function determinarCuotaLibros(cantidadChances: number, sorteo: Sorteo): number {
+  const cantidades = [
+    sorteo.cantidad_pack_1,
+    sorteo.cantidad_pack_2,
+    sorteo.cantidad_pack_3,
+    sorteo.cantidad_pack_4,
+    sorteo.cantidad_pack_5,
+  ].filter((q) => q > 0).sort((a, b) => a - b)
+
+  if (cantidades.length === 0) return 1
+  if (cantidadChances <= cantidades[0]) return 1
+  if (cantidadChances >= cantidades[cantidades.length - 1]) return 3
+  return 2
+}
+
+// Devuelve la cuota de libros para un email (cuántos puede elegir),
+// o null si ese email no tiene ninguna compra paga.
+async function obtenerCuotaEmail(email: string): Promise<number | null> {
+  const { data: compradores, error } = await supabase
+    .from("compradores")
+    .select("cantidad_chances")
+    .eq("email", email)
+    .eq("estado_pago", "pagado")
+
+  if (error || !compradores || compradores.length === 0) return null
+
+  const maxChances = Math.max(...compradores.map((c) => c.cantidad_chances))
+  const sorteo = await obtenerSorteoActivo()
+  return sorteo ? determinarCuotaLibros(maxChances, sorteo) : 1
+}
+
+export async function obtenerLibrosPorEmail(
+  email: string,
+): Promise<{ libros: LibroDigital[]; cuota: number; reclamados: string[] } | null> {
+  try {
+    const e = email.trim().toLowerCase()
+
+    const cuota = await obtenerCuotaEmail(e)
+    if (cuota === null) return null
+
+    const { data: libros, error: errLibros } = await supabase
+      .from("libros")
+      .select("*")
+      .eq("visible", true)
+      .order("orden", { ascending: true })
+
+    if (errLibros) return null
+
+    // IDs de libros que este email ya eligió (reclamos permanentes)
+    const { data: claims } = await supabase
+      .from("libros_reclamados")
+      .select("libro_id")
+      .eq("email", e)
+
+    const reclamados = (claims ?? []).map((c) => c.libro_id as string)
+
+    return { libros: libros ?? [], cuota, reclamados }
+  } catch (error) {
+    console.error("Error obteniendo libros por email:", error)
+    return null
+  }
+}
+
+// Registra de forma permanente que un email eligió un libro.
+// Valida la cuota server-side para que no se pueda exceder.
+export async function reclamarLibro(
+  email: string,
+  libroId: string,
+): Promise<{ ok: boolean; error?: "sin_compra" | "sin_saldo" | "db" }> {
+  try {
+    const e = email.trim().toLowerCase()
+
+    const cuota = await obtenerCuotaEmail(e)
+    if (cuota === null) return { ok: false, error: "sin_compra" }
+
+    const { data: claims, error: errClaims } = await supabase
+      .from("libros_reclamados")
+      .select("libro_id")
+      .eq("email", e)
+
+    if (errClaims) return { ok: false, error: "db" }
+
+    const yaReclamados = claims ?? []
+
+    // Ya lo tenía: idempotente, dejarlo re-descargar
+    if (yaReclamados.some((c) => c.libro_id === libroId)) return { ok: true }
+
+    // Sin saldo disponible
+    if (yaReclamados.length >= cuota) return { ok: false, error: "sin_saldo" }
+
+    const { error: errInsert } = await supabase
+      .from("libros_reclamados")
+      .insert({ email: e, libro_id: libroId })
+
+    if (errInsert) {
+      console.error("Error reclamando libro:", errInsert.code, errInsert.message)
+      return { ok: false, error: "db" }
+    }
+
+    return { ok: true }
+  } catch (error) {
+    console.error("Error reclamando libro (catch):", error)
+    return { ok: false, error: "db" }
   }
 }

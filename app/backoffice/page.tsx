@@ -13,6 +13,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Table,
   TableBody,
@@ -48,6 +52,9 @@ import {
   ChevronDown,
   ExternalLink,
   LayoutGrid,
+  BookOpen,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -92,8 +99,12 @@ import {
   eliminarComprador,
   obtenerConfiguracionTransferencia,
   obtenerPremiosSecundarios,
+  obtenerTodosLosLibros,
+  crearLibro,
+  actualizarLibro,
+  eliminarLibro,
 } from "@/lib/database"
-import type { Sorteo, Comprador } from "@/lib/supabase"
+import type { Sorteo, Comprador, LibroDigital } from "@/lib/supabase"
 import type { PremiosSecundarios } from "@/lib/database"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -159,6 +170,14 @@ export default function BackofficePage() {
       visible: true,
     })
   const [activeTab, setActiveTab] = useState("informacion")
+
+  // Libros digitales
+  const [libros, setLibros] = useState<LibroDigital[]>([])
+  const [libroModalAbierto, setLibroModalAbierto] = useState(false)
+  const [libroEditando, setLibroEditando] = useState<LibroDigital | null>(null)
+  const [libroForm, setLibroForm] = useState({ nombre: "", descripcion: "", imagen_url: "", link_drive: "", orden: "0" })
+  const [guardandoLibro, setGuardandoLibro] = useState(false)
+
   const [confirmarEliminarModalAbierto, setConfirmarEliminarModalAbierto] =
     useState(false)
   const [compradorAEliminar, setCompradorAEliminar] =
@@ -186,13 +205,14 @@ export default function BackofficePage() {
     try {
       setLoading(true)
 
-      const [sorteoActivo, sorteos, transferencias, configTransf, premios] =
+      const [sorteoActivo, sorteos, transferencias, configTransf, premios, librosData] =
         await Promise.all([
           obtenerSorteoActivo(),
           obtenerTodosSorteos(),
           obtenerTransferenciasPendientes(),
           obtenerConfiguracionTransferencia(),
           obtenerPremiosSecundarios(),
+          obtenerTodosLosLibros(),
         ])
 
       setSorteoActual(sorteoActivo)
@@ -200,6 +220,7 @@ export default function BackofficePage() {
       setTransferenciasPendientes(transferencias)
       setConfigTransferencia(configTransf)
       setPremiosSecundarios(premios)
+      setLibros(librosData)
 
       if (sorteoActivo) {
         console.log("🎯 Sorteo Activo:", {
@@ -764,6 +785,72 @@ export default function BackofficePage() {
     }
   }
 
+  // Handlers para libros
+  const abrirLibroModal = (libro?: LibroDigital) => {
+    if (libro) {
+      setLibroEditando(libro)
+      setLibroForm({
+        nombre: libro.nombre,
+        descripcion: libro.descripcion ?? "",
+        imagen_url: libro.imagen_url ?? "",
+        link_drive: libro.link_drive,
+        orden: String(libro.orden),
+      })
+    } else {
+      setLibroEditando(null)
+      setLibroForm({ nombre: "", descripcion: "", imagen_url: "", link_drive: "", orden: String(libros.length) })
+    }
+    setLibroModalAbierto(true)
+  }
+
+  const guardarLibro = async () => {
+    if (!libroForm.nombre.trim() || !libroForm.link_drive.trim()) {
+      toast({ title: "Nombre y link son requeridos", variant: "destructive" })
+      return
+    }
+    setGuardandoLibro(true)
+    if (libroEditando) {
+      const ok = await actualizarLibro(libroEditando.id, {
+        nombre: libroForm.nombre,
+        descripcion: libroForm.descripcion || undefined,
+        imagen_url: libroForm.imagen_url || undefined,
+        link_drive: libroForm.link_drive,
+        orden: Number(libroForm.orden),
+      })
+      if (ok) {
+        setLibros((prev) => prev.map((l) => l.id === libroEditando.id ? { ...l, ...libroForm, orden: Number(libroForm.orden) } : l))
+        toast({ title: "Libro actualizado" })
+      } else {
+        toast({ title: "Error al actualizar", variant: "destructive" })
+      }
+    } else {
+      const nuevo = await crearLibro(libroForm.nombre, libroForm.link_drive, libroForm.descripcion, libroForm.imagen_url, Number(libroForm.orden))
+      if (nuevo) {
+        setLibros((prev) => [...prev, nuevo])
+        toast({ title: "Libro agregado" })
+      } else {
+        toast({ title: "Error al agregar", variant: "destructive" })
+      }
+    }
+    setGuardandoLibro(false)
+    setLibroModalAbierto(false)
+  }
+
+  const handleEliminarLibro = async (id: string) => {
+    const ok = await eliminarLibro(id)
+    if (ok) {
+      setLibros((prev) => prev.filter((l) => l.id !== id))
+      toast({ title: "Libro eliminado" })
+    } else {
+      toast({ title: "Error al eliminar", variant: "destructive" })
+    }
+  }
+
+  const toggleVisibleLibro = async (libro: LibroDigital) => {
+    const ok = await actualizarLibro(libro.id, { visible: !libro.visible })
+    if (ok) setLibros((prev) => prev.map((l) => l.id === libro.id ? { ...l, visible: !l.visible } : l))
+  }
+
   // Handlers para transferencias
   const handleAprobarTransferencia = async (compradorId: string) => {
     try {
@@ -1302,6 +1389,13 @@ export default function BackofficePage() {
             >
               <Type className="w-4 h-4 mr-2" />
               Contenido
+            </TabsTrigger>
+            <TabsTrigger
+              value="libros"
+              className="data-[state=active]:bg-gray-100"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Libros ({libros.length})
             </TabsTrigger>
           </TabsList>
 
@@ -2145,6 +2239,146 @@ export default function BackofficePage() {
 
           <TabsContent value="contenido" className="space-y-6">
             <ContenidoManager />
+          </TabsContent>
+
+          <TabsContent value="libros" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="w-5 h-5 text-amber-500" />
+                      Biblioteca Digital
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Gestiona los libros digitales que se muestran en /libros
+                    </p>
+                  </div>
+                  <Button onClick={() => abrirLibroModal()} size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Agregar libro
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {libros.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                    <p>No hay libros cargados todavía.</p>
+                    <p className="text-xs mt-1">Acordate de correr primero el SQL de migración en Supabase.</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-8">Ord.</TableHead>
+                        <TableHead>Nombre</TableHead>
+                        <TableHead className="hidden md:table-cell">Descripción</TableHead>
+                        <TableHead>Link Drive</TableHead>
+                        <TableHead className="w-20 text-center">Visible</TableHead>
+                        <TableHead className="w-24 text-right">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {libros.map((libro) => (
+                        <TableRow key={libro.id} className={!libro.visible ? "opacity-50" : ""}>
+                          <TableCell className="text-center text-muted-foreground">{libro.orden}</TableCell>
+                          <TableCell className="font-medium">{libro.nombre}</TableCell>
+                          <TableCell className="hidden md:table-cell text-muted-foreground text-sm truncate max-w-xs">
+                            {libro.descripcion ?? "—"}
+                          </TableCell>
+                          <TableCell>
+                            <a href={libro.link_drive} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                              <ExternalLink className="w-3 h-3" />
+                              Ver
+                            </a>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <button onClick={() => toggleVisibleLibro(libro)} className="text-muted-foreground hover:text-foreground transition-colors">
+                              {libro.visible ? <Eye className="w-4 h-4 mx-auto text-green-600" /> : <EyeOff className="w-4 h-4 mx-auto" />}
+                            </button>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button variant="ghost" size="sm" onClick={() => abrirLibroModal(libro)}>
+                                <Edit className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleEliminarLibro(libro.id)} className="text-red-500 hover:text-red-700">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Modal agregar / editar libro */}
+            <Dialog open={libroModalAbierto} onOpenChange={setLibroModalAbierto}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{libroEditando ? "Editar libro" : "Agregar libro"}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="libro-nombre">Nombre *</Label>
+                    <Input
+                      id="libro-nombre"
+                      value={libroForm.nombre}
+                      onChange={(e) => setLibroForm((f) => ({ ...f, nombre: e.target.value }))}
+                      placeholder="Ej: El poder del ahora"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="libro-descripcion">Descripción</Label>
+                    <Textarea
+                      id="libro-descripcion"
+                      value={libroForm.descripcion}
+                      onChange={(e) => setLibroForm((f) => ({ ...f, descripcion: e.target.value }))}
+                      placeholder="Breve descripción del libro"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="libro-imagen">URL de imagen de portada</Label>
+                    <Input
+                      id="libro-imagen"
+                      value={libroForm.imagen_url}
+                      onChange={(e) => setLibroForm((f) => ({ ...f, imagen_url: e.target.value }))}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="libro-link">Link de Drive *</Label>
+                    <Input
+                      id="libro-link"
+                      value={libroForm.link_drive}
+                      onChange={(e) => setLibroForm((f) => ({ ...f, link_drive: e.target.value }))}
+                      placeholder="https://drive.google.com/..."
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="libro-orden">Orden</Label>
+                    <Input
+                      id="libro-orden"
+                      type="number"
+                      value={libroForm.orden}
+                      onChange={(e) => setLibroForm((f) => ({ ...f, orden: e.target.value }))}
+                      className="w-24"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setLibroModalAbierto(false)}>Cancelar</Button>
+                  <Button onClick={guardarLibro} disabled={guardandoLibro}>
+                    {guardandoLibro ? "Guardando..." : libroEditando ? "Guardar cambios" : "Agregar"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
         </Tabs>
       </div>

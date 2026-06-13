@@ -130,3 +130,14 @@ export interface MuralGanador {
   created_at: string
   updated_at: string
 }
+
+export interface LibroDigital {
+  id: string
+  nombre: string
+  descripcion?: string
+  imagen_url?: string
+  link_drive: string
+  orden: number
+  visible: boolean
+  created_at: string
+}
