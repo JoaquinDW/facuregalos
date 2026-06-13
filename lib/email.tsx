@@ -206,12 +206,28 @@ function bloqueSuerte(): string {
   return `<p style="text-align:center; font-size:17px; margin:26px 0 6px 0; color:${COLORS.goldBright}; font-weight:600;">Mucha suerte!</p>`
 }
 
+function bloqueLibros(): string {
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:rgba(212,175,55,0.07); border:1px solid rgba(212,175,55,0.25); border-radius:12px; margin:24px 0;">
+      <tr>
+        <td style="padding:20px 22px;" align="center">
+          <p style="margin:0 0 6px 0; font-weight:700; color:${COLORS.goldLight}; text-transform:uppercase; letter-spacing:1px; font-size:13px;">🎁 Tu regalo: libros digitales</p>
+          <p style="margin:0 0 16px 0; font-size:14px; color:${COLORS.silver};">Por tu compra accedés a nuestra biblioteca digital. Ingresá con este mismo email para ver y descargar los libros que te corresponden.</p>
+          <a href="https://facuregalos.com/libros" style="display:inline-block; background:${COLORS.gold}; color:#0c0b09; text-decoration:none; font-weight:700; font-size:14px; padding:12px 26px; border-radius:10px;">Ver mis libros</a>
+          <p style="margin:14px 0 0 0; font-size:12px; color:${COLORS.silverMuted};">o entrá a facuregalos.com/libros</p>
+        </td>
+      </tr>
+    </table>
+  `
+}
+
 function generarHTMLEmail(data: EmailData): string {
   const body = `
     <p style="margin:0 0 14px 0;">Hola <strong style="color:${COLORS.goldLight};">${data.nombre}</strong>,</p>
     <p style="margin:0 0 22px 0;">Nos complace informarte que tu compra ha sido aprobada y tus números han sido asignados exitosamente.</p>
     ${bloqueNumeros(data.numerosAsignados)}
     ${bloqueImagen(data.sorteoImagenUrl)}
+    ${bloqueLibros()}
     ${bloqueSuerte()}
   `
 
@@ -303,6 +319,7 @@ function generarHTMLTransferenciaAprobada(
       },
     ])}
     ${bloqueImagen(data.sorteoImagenUrl)}
+    ${bloqueLibros()}
     ${bloqueSuerte()}
   `
 
