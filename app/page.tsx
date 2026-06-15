@@ -581,11 +581,8 @@ export default function LandingPage() {
                       </span>
                     )}
 
-                    <p className="flex items-center justify-center gap-3 text-5xl font-lux font-semibold text-gold mt-2">
-                      <BookOpen
-                        className="w-9 h-9 text-gold-solid"
-                        strokeWidth={1.5}
-                      />
+                    <p className="flex items-center justify-center gap-2.5 text-3xl font-lux font-semibold text-gold-solid mt-2">
+                      <BookOpen className="w-7 h-7" strokeWidth={1.5} />
                       {pack.libros}
                     </p>
                     <p className="text-xs uppercase tracking-[0.25em] text-silver-muted mt-1 mb-4">
@@ -594,13 +591,10 @@ export default function LandingPage() {
 
                     <div className="divider-silver mb-4" />
 
-                    <p className="flex items-center justify-center gap-2 text-sm leading-relaxed flex-1 text-silver">
+                    <p className="flex flex-wrap items-center justify-center gap-2.5 text-2xl lg:text-3xl font-lux font-semibold text-gold leading-tight flex-1">
                       Te regalo {pack.chances}{" "}
                       {pack.chances === 1 ? "número" : "números"}
-                      <Car
-                        className="w-5 h-5 text-gold-solid"
-                        strokeWidth={1.5}
-                      />
+                      <Car className="w-7 h-7 text-gold-solid" strokeWidth={1.5} />
                     </p>
 
                     <p className="text-3xl font-semibold text-gold-solid mt-5">
