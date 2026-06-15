@@ -7,6 +7,8 @@ import {
   Trophy,
   ShoppingCart,
   ChevronDown,
+  BookOpen,
+  Car,
 } from "lucide-react"
 import Link from "next/link"
 import { CompraModalNuevo } from "@/components/compra-modal-nuevo"
@@ -73,12 +75,14 @@ export default function LandingPage() {
 
     const allPacks = [
       {
+        libros: 1,
         chances: sorteo.cantidad_pack_1 || 10,
         precio: sorteo.precio_6_chances || 21000,
         descripcion: sorteo.descripcion_pack_1 || "Honda Wave 2025",
         visible: sorteo.pack_1_visible ?? true,
       },
       {
+        libros: 2,
         chances: sorteo.cantidad_pack_2 || 25,
         precio: sorteo.precio_12_chances || 42000,
         popular: true,
@@ -88,6 +92,7 @@ export default function LandingPage() {
         visible: sorteo.pack_2_visible ?? true,
       },
       {
+        libros: 3,
         chances: sorteo.cantidad_pack_3 || 50,
         precio: sorteo.precio_24_chances || 84000,
         descripcion:
@@ -96,12 +101,14 @@ export default function LandingPage() {
         visible: sorteo.pack_3_visible ?? true,
       },
       {
+        libros: 4,
         chances: sorteo.cantidad_pack_4 || 0,
         precio: sorteo.precio_pack_4 || 0,
         descripcion: sorteo.descripcion_pack_4 || "",
         visible: sorteo.pack_4_visible ?? false,
       },
       {
+        libros: 5,
         chances: sorteo.cantidad_pack_5 || 0,
         precio: sorteo.precio_pack_5 || 0,
         descripcion: sorteo.descripcion_pack_5 || "",
@@ -574,21 +581,26 @@ export default function LandingPage() {
                       </span>
                     )}
 
-                    <p className="text-5xl font-lux font-semibold text-gold mt-2">
-                      {pack.chances}
+                    <p className="flex items-center justify-center gap-3 text-5xl font-lux font-semibold text-gold mt-2">
+                      <BookOpen
+                        className="w-9 h-9 text-gold-solid"
+                        strokeWidth={1.5}
+                      />
+                      {pack.libros}
                     </p>
                     <p className="text-xs uppercase tracking-[0.25em] text-silver-muted mt-1 mb-4">
-                      Números
+                      {pack.libros === 1 ? "Libro" : "Libros"}
                     </p>
 
                     <div className="divider-silver mb-4" />
 
-                    <p
-                      className={`text-sm leading-relaxed flex-1 ${
-                        pack.descripcion ? "text-silver" : "text-silver-muted"
-                      }`}
-                    >
-                      {pack.descripcion || `${pack.chances} números asignados`}
+                    <p className="flex items-center justify-center gap-2 text-sm leading-relaxed flex-1 text-silver">
+                      Te regalo {pack.chances}{" "}
+                      {pack.chances === 1 ? "número" : "números"}
+                      <Car
+                        className="w-5 h-5 text-gold-solid"
+                        strokeWidth={1.5}
+                      />
                     </p>
 
                     <p className="text-3xl font-semibold text-gold-solid mt-5">
