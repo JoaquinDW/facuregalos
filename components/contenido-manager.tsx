@@ -106,9 +106,13 @@ const SECCIONES: Seccion[] = [
     campos: [
       { key: "faq_titulo", label: "Título de la sección" },
       { key: "faq_pregunta_fecha", label: "Pregunta sobre la fecha" },
+      {
+        key: "faq_respuesta_fecha_pendiente",
+        label: "Respuesta sobre la fecha (cuando aún no está definida)",
+      },
       { key: "faq_pregunta_ganador", label: "Pregunta sobre el ganador" },
       { key: "faq_respuesta_ganador", label: "Respuesta sobre el ganador" },
-      { key: "faq_link_quiniela", label: "Link de la quiniela" },
+      { key: "faq_link_quiniela", label: "Link de la transmisión en vivo" },
     ],
   },
   {

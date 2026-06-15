@@ -63,6 +63,7 @@ export interface ContenidoSitio {
   // FAQ
   faq_titulo: string
   faq_pregunta_fecha: string
+  faq_respuesta_fecha_pendiente: string
   faq_pregunta_ganador: string
   faq_respuesta_ganador: string
   faq_link_quiniela: string
@@ -135,10 +136,10 @@ export const CONTENIDO_DEFAULTS: ContenidoSitio = {
 
   faq_titulo: "Preguntas frecuentes",
   faq_pregunta_fecha: "¿Cuándo se realiza el evento?",
+  faq_respuesta_fecha_pendiente: "Una vez vendido el 100% de los números",
   faq_pregunta_ganador: "¿En dónde vemos el ganador?",
-  faq_respuesta_ganador: "Quiniela de Buenos Aires — La Previa · 10:15 hs",
-  faq_link_quiniela:
-    "https://www.loteriasmundiales.com.ar/Quinielas/buenos-aires",
+  faq_respuesta_ganador: "Transmisión en vivo en mi perfil de Facebook",
+  faq_link_quiniela: "https://www.facebook.com/facundobz.2688/",
 
   consulta_kicker: "Participantes",
   consulta_titulo: "¿Ya participaste?",

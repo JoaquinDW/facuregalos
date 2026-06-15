@@ -718,7 +718,7 @@ export default function LandingPage() {
                         month: "long",
                         year: "numeric",
                       })
-                    : "Próximamente"}
+                    : contenido.faq_respuesta_fecha_pendiente}
                 </span>
               </div>
             </Reveal>
