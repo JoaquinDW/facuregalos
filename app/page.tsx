@@ -29,6 +29,7 @@ import {
   generarNumerosUnicos,
   obtenerPremiosSecundarios,
 } from "@/lib/database"
+import { generarComprobante } from "@/lib/comprobante"
 import type { Sorteo } from "@/lib/supabase"
 import type { PremiosSecundarios } from "@/lib/database"
 import {
@@ -833,7 +834,7 @@ export default function LandingPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-solid mb-3">
                     Tus {p.cantidad_chances} números asignados
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {[...p.numeros_asignados]
                       .sort((a, b) => a - b)
                       .map((numero) => (
@@ -845,6 +846,15 @@ export default function LandingPage() {
                         </span>
                       ))}
                   </div>
+                  <button
+                    onClick={() =>
+                      generarComprobante(p.sorteo_nombre, p)
+                    }
+                    className="btn-gold px-5 py-2 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Descargar comprobante
+                  </button>
                 </div>
               ))}
             </div>
