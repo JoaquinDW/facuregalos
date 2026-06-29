@@ -96,6 +96,7 @@ import {
   realizarSorteo,
   finalizarSorteoManual,
   actualizarPreciosSorteo,
+  actualizarNombreSorteo,
   eliminarComprador,
   obtenerConfiguracionTransferencia,
   obtenerPremiosSecundarios,
@@ -105,6 +106,7 @@ import {
   eliminarLibro,
 } from "@/lib/database"
 import type { Sorteo, Comprador, LibroDigital } from "@/lib/supabase"
+import { generarComprobante as generarComprobanteCanvas } from "@/lib/comprobante"
 import type { PremiosSecundarios } from "@/lib/database"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -148,6 +150,9 @@ export default function BackofficePage() {
     useState(false)
   const [editarPreciosModalAbierto, setEditarPreciosModalAbierto] =
     useState(false)
+  const [editandoNombre, setEditandoNombre] = useState(false)
+  const [nombreEditado, setNombreEditado] = useState("")
+  const [guardandoNombre, setGuardandoNombre] = useState(false)
   const [editarPacksModalAbierto, setEditarPacksModalAbierto] = useState(false)
   const [editarTituloModalAbierto, setEditarTituloModalAbierto] =
     useState(false)
@@ -1153,6 +1158,25 @@ export default function BackofficePage() {
     }
   }
 
+  const handleGuardarNombre = async () => {
+    if (!sorteoActual || !nombreEditado.trim()) return
+    setGuardandoNombre(true)
+    try {
+      const exitoso = await actualizarNombreSorteo(sorteoActual.id, nombreEditado.trim())
+      if (exitoso) {
+        setSorteoActual({ ...sorteoActual, nombre: nombreEditado.trim() })
+        setEditandoNombre(false)
+        toast({ title: "Nombre actualizado", description: "El nombre del sorteo se actualizó correctamente" })
+      } else {
+        toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el nombre" })
+      }
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "Ocurrió un error al actualizar el nombre" })
+    } finally {
+      setGuardandoNombre(false)
+    }
+  }
+
   const handlePacksActualizados = async () => {
     // Reload sorteo data to get updated values
     await cargarDatos()
@@ -1500,9 +1524,52 @@ export default function BackofficePage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {sorteoActual.nombre}
-                        </h3>
+                        {editandoNombre ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={nombreEditado}
+                              onChange={(e) => setNombreEditado(e.target.value)}
+                              className="font-semibold h-8 text-sm"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleGuardarNombre()
+                                if (e.key === "Escape") setEditandoNombre(false)
+                              }}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={handleGuardarNombre}
+                              disabled={guardandoNombre || !nombreEditado.trim()}
+                            >
+                              {guardandoNombre ? "..." : "Guardar"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditandoNombre(false)}
+                              disabled={guardandoNombre}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group">
+                            <h3 className="font-semibold text-gray-900">
+                              {sorteoActual.nombre}
+                            </h3>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-gray-400 hover:text-gray-700"
+                              onClick={() => {
+                                setNombreEditado(sorteoActual.nombre)
+                                setEditandoNombre(true)
+                              }}
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        )}
                         <p className="text-gray-600">
                           {sorteoActual.descripcion}
                         </p>

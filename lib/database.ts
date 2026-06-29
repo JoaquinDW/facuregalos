@@ -587,6 +587,33 @@ export async function actualizarPreciosSorteo(
   }
 }
 
+export async function actualizarNombreSorteo(
+  sorteoId: string,
+  nombre: string
+): Promise<boolean> {
+  try {
+    if (sorteoId === "default") return false
+
+    const tablasExisten = await verificarTablas()
+    if (!tablasExisten) return false
+
+    const { error } = await supabase
+      .from("sorteos")
+      .update({ nombre, updated_at: new Date().toISOString() })
+      .eq("id", sorteoId)
+
+    if (error) {
+      console.error("Error actualizando nombre:", error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error actualizando nombre:", error)
+    return false
+  }
+}
+
 // Obtener compradores de un sorteo específico
 export async function obtenerCompradores(
   sorteoId: string
