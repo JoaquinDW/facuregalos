@@ -679,6 +679,36 @@ export async function obtenerCompradores(
   }
 }
 
+// Obtener un comprador puntual por id, incluyendo el nombre del sorteo asociado.
+// Usado por la página pública de comprobante (/comprobante/[id]).
+export async function obtenerCompradorPorId(
+  compradorId: string
+): Promise<(Comprador & { sorteo_nombre?: string }) | null> {
+  try {
+    const { data, error } = await supabase
+      .from("compradores")
+      .select(
+        `
+        *,
+        sorteos!compradores_sorteo_id_fkey(nombre)
+      `
+      )
+      .eq("id", compradorId)
+      .single()
+
+    if (error || !data) {
+      console.error("Error obteniendo comprador por id:", error)
+      return null
+    }
+
+    const { sorteos, ...comprador } = data as any
+    return { ...comprador, sorteo_nombre: sorteos?.nombre }
+  } catch (error) {
+    console.error("Error obteniendo comprador por id:", error)
+    return null
+  }
+}
+
 // Nueva función: Obtener compradores del sorteo actual (más reciente)
 // SOLO compradores con estado_pago = 'pagado'
 export async function obtenerCompradoresSorteoActual(): Promise<Comprador[]> {

@@ -629,8 +629,38 @@ export default function BackofficePage() {
           console.log("⚠️ No sorteo image URL available for preview generation")
         }
 
-        // Enviar email de aprobación solo si el comprador tiene email
-        if (comprador.email) {
+        // Notificación: WhatsApp si hay número válido; si no, email de respaldo.
+        const tieneWhatsApp =
+          comprador.telefono && esNumeroTelefono(comprador.telefono)
+
+        if (tieneWhatsApp) {
+          try {
+            const response = await fetch("/api/whatsapp-transferencia", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                data: {
+                  compradorId: comprador.id,
+                  nombre: comprador.nombre,
+                  telefono: comprador.telefono,
+                  cantidadChances: comprador.cantidad_chances,
+                  numerosAsignados: compradorConNumeros?.numeros_asignados || [],
+                  precioPagado: comprador.precio_pagado,
+                  nombreSorteo:
+                    sorteoActual?.nombre || "T-SHIRT SORTEO EXCLUSIVO",
+                },
+              }),
+            })
+
+            if (!response.ok) {
+              console.warn(
+                "Transferencia aprobada pero no se pudo enviar el WhatsApp",
+              )
+            }
+          } catch (whatsappError) {
+            console.warn("Error enviando WhatsApp de aprobación:", whatsappError)
+          }
+        } else if (comprador.email) {
           try {
             const emailData = {
               tipo: "aprobada",
@@ -669,7 +699,7 @@ export default function BackofficePage() {
           }
         } else {
           console.log(
-            "⚠️ Comprador sin email, saltando envío de email de aprobación",
+            "⚠️ Comprador sin WhatsApp ni email, saltando notificación de aprobación",
           )
         }
       } else {
