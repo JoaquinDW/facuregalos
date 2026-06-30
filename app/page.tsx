@@ -857,6 +857,24 @@ export default function LandingPage() {
                   </button>
                 </div>
               ))}
+
+              <Link
+                href="/libros"
+                className="flex items-center gap-3 card-lux-silver p-4 rounded-xl group hover:border-[#d4af37]/40 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 group-hover:bg-[#d4af37]/20 transition-colors">
+                  <BookOpen className="w-4 h-4 text-gold-solid" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-silver text-sm font-semibold leading-tight">
+                    Tus libros digitales de regalo
+                  </p>
+                  <p className="text-silver-muted text-xs mt-0.5">
+                    Con cada participación recibís libros gratis. Ingresá tu email en /libros para reclamarlos.
+                  </p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-silver-muted shrink-0"><polyline points="9 18 15 12 9 6"/></svg>
+              </Link>
             </div>
           )}
         </div>
