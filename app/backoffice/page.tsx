@@ -55,6 +55,7 @@ import {
   BookOpen,
   Eye,
   EyeOff,
+  MessageCircle,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -83,6 +84,7 @@ import { ConfirmarEliminarModal } from "@/components/confirmar-eliminar-modal"
 import { FinalizarSorteoModal } from "@/components/finalizar-sorteo-modal"
 import { PremiosSecundariosManager } from "@/components/premios-secundarios-manager"
 import { ContenidoManager } from "@/components/contenido-manager"
+import { ReporteWhatsapp } from "@/components/reporte-whatsapp"
 import {
   obtenerSorteoActivo,
   obtenerTodosSorteos,
@@ -641,6 +643,7 @@ export default function BackofficePage() {
               body: JSON.stringify({
                 data: {
                   compradorId: comprador.id,
+                  sorteoId: comprador.sorteo_id ?? sorteoActual?.id ?? null,
                   nombre: comprador.nombre,
                   telefono: comprador.telefono,
                   cantidadChances: comprador.cantidad_chances,
@@ -1073,7 +1076,7 @@ export default function BackofficePage() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="bg-white border border-gray-200">
+          <TabsList className="bg-white border border-gray-200 flex flex-wrap h-auto gap-1 p-1">
             <TabsTrigger
               value="informacion"
               className="data-[state=active]:bg-gray-100"
@@ -1159,6 +1162,13 @@ export default function BackofficePage() {
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Libros ({libros.length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="whatsapp"
+              className="data-[state=active]:bg-gray-100"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              WhatsApp
             </TabsTrigger>
           </TabsList>
 
@@ -2195,6 +2205,10 @@ export default function BackofficePage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+          </TabsContent>
+
+          <TabsContent value="whatsapp" className="space-y-6">
+            <ReporteWhatsapp sorteos={todosSorteos} />
           </TabsContent>
         </Tabs>
       </div>

@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://facuregalos.com"),
   title: "Facuregalos",
   description: "Facuregalos",
+  other: {
+    "facebook-domain-verification": "icz78hrsn2oxrrbzj4kxf0wxr23zqq",
+  },
 
   // icons: {
   //   icon: "/facuregalos.jpeg",

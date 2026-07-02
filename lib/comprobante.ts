@@ -9,11 +9,12 @@ export interface ComprobanteComprador {
   precio_pagado?: number | null
 }
 
-export function generarComprobante(
+// Dibuja el comprobante en un canvas y lo devuelve (sin descargar).
+// Los wrappers de abajo lo usan para descargar o para obtener un dataURL.
+function dibujarComprobante(
   premio: string,
   comprador: ComprobanteComprador,
-  onDone?: () => void,
-) {
+): HTMLCanvasElement | null {
   const ticketsPerRow = 5
   const ticketWidth = 130
   const ticketHeight = 65
@@ -21,7 +22,7 @@ export function generarComprobante(
 
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")
-  if (!ctx) return
+  if (!ctx) return null
 
   const numRows = Math.ceil(comprador.cantidad_chances / ticketsPerRow)
   const ticketsAreaHeight = numRows * (ticketHeight + ticketGap) + ticketGap
@@ -222,6 +223,18 @@ export function generarComprobante(
   ctx.font = "bold 22px Arial"
   ctx.fillText("Mucha suerte!", canvas.width / 2, yPos)
 
+  return canvas
+}
+
+// Genera el comprobante y dispara la descarga del PNG (uso: landing y backoffice).
+export function generarComprobante(
+  premio: string,
+  comprador: ComprobanteComprador,
+  onDone?: () => void,
+) {
+  const canvas = dibujarComprobante(premio, comprador)
+  if (!canvas) return
+
   canvas.toBlob((blob) => {
     if (blob) {
       const url = URL.createObjectURL(blob)
@@ -233,4 +246,15 @@ export function generarComprobante(
       onDone?.()
     }
   })
+}
+
+// Genera el comprobante y devuelve un dataURL (PNG) para mostrarlo como <img>.
+// Útil en la página pública /comprobante/[id], sobre todo en el WhatsApp del
+// celular donde la descarga de un blob no siempre funciona.
+export function generarComprobanteDataURL(
+  premio: string,
+  comprador: ComprobanteComprador,
+): string | null {
+  const canvas = dibujarComprobante(premio, comprador)
+  return canvas ? canvas.toDataURL("image/png") : null
 }

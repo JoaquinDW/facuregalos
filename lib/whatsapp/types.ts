@@ -1,23 +1,6 @@
 // Interfaz común para los proveedores de envío de WhatsApp.
 // El resto de la app solo conoce esta interfaz; las implementaciones
-// concretas (Baileys hoy, Cloud API oficial más adelante) viven detrás
-// del factory en index.ts.
-
-export interface SendWhatsAppParams {
-  /** Teléfono tal como viene del comprador (sin normalizar). */
-  telefono: string
-  /** Texto del mensaje a enviar. */
-  mensaje: string
-}
-
-export interface SendWhatsAppResult {
-  success: boolean
-  error?: string
-}
-
-export interface WhatsAppProvider {
-  sendMessage(params: SendWhatsAppParams): Promise<SendWhatsAppResult>
-}
+// concretas (Twilio, Baileys) viven detrás del factory en index.ts.
 
 /** Datos necesarios para construir el mensaje de transferencia aprobada. */
 export interface MensajeAprobacionData {
@@ -28,4 +11,25 @@ export interface MensajeAprobacionData {
   nombreSorteo: string
   /** Link público a la página del comprobante. */
   comprobanteUrl: string
+  /** Id del comprador (usado como suffix del botón/link en plantillas). */
+  compradorId: string
+}
+
+export interface EnviarAprobacionParams extends MensajeAprobacionData {
+  /** Teléfono tal como viene del comprador (sin normalizar). */
+  telefono: string
+}
+
+export type WhatsAppProviderName = "twilio" | "baileys"
+
+export interface SendWhatsAppResult {
+  success: boolean
+  error?: string
+  provider: WhatsAppProviderName
+  /** Identificador del mensaje en el proveedor (ej. sid de Twilio). */
+  providerMessageId?: string
+}
+
+export interface WhatsAppProvider {
+  enviarTransferenciaAprobada(params: EnviarAprobacionParams): Promise<SendWhatsAppResult>
 }
