@@ -55,6 +55,7 @@ import {
   BookOpen,
   Eye,
   EyeOff,
+  MessageCircle,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -83,6 +84,7 @@ import { ConfirmarEliminarModal } from "@/components/confirmar-eliminar-modal"
 import { FinalizarSorteoModal } from "@/components/finalizar-sorteo-modal"
 import { PremiosSecundariosManager } from "@/components/premios-secundarios-manager"
 import { ContenidoManager } from "@/components/contenido-manager"
+import { ReporteWhatsapp } from "@/components/reporte-whatsapp"
 import {
   obtenerSorteoActivo,
   obtenerTodosSorteos,
@@ -629,8 +631,39 @@ export default function BackofficePage() {
           console.log("⚠️ No sorteo image URL available for preview generation")
         }
 
-        // Enviar email de aprobación solo si el comprador tiene email
-        if (comprador.email) {
+        // Notificación: WhatsApp si hay número válido; si no, email de respaldo.
+        const tieneWhatsApp =
+          comprador.telefono && esNumeroTelefono(comprador.telefono)
+
+        if (tieneWhatsApp) {
+          try {
+            const response = await fetch("/api/whatsapp-transferencia", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                data: {
+                  compradorId: comprador.id,
+                  sorteoId: comprador.sorteo_id ?? sorteoActual?.id ?? null,
+                  nombre: comprador.nombre,
+                  telefono: comprador.telefono,
+                  cantidadChances: comprador.cantidad_chances,
+                  numerosAsignados: compradorConNumeros?.numeros_asignados || [],
+                  precioPagado: comprador.precio_pagado,
+                  nombreSorteo:
+                    sorteoActual?.nombre || "T-SHIRT SORTEO EXCLUSIVO",
+                },
+              }),
+            })
+
+            if (!response.ok) {
+              console.warn(
+                "Transferencia aprobada pero no se pudo enviar el WhatsApp",
+              )
+            }
+          } catch (whatsappError) {
+            console.warn("Error enviando WhatsApp de aprobación:", whatsappError)
+          }
+        } else if (comprador.email) {
           try {
             const emailData = {
               tipo: "aprobada",
@@ -669,7 +702,7 @@ export default function BackofficePage() {
           }
         } else {
           console.log(
-            "⚠️ Comprador sin email, saltando envío de email de aprobación",
+            "⚠️ Comprador sin WhatsApp ni email, saltando notificación de aprobación",
           )
         }
       } else {
@@ -1043,7 +1076,7 @@ export default function BackofficePage() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="bg-white border border-gray-200">
+          <TabsList className="bg-white border border-gray-200 flex flex-wrap h-auto gap-1 p-1">
             <TabsTrigger
               value="informacion"
               className="data-[state=active]:bg-gray-100"
@@ -1129,6 +1162,13 @@ export default function BackofficePage() {
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Libros ({libros.length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="whatsapp"
+              className="data-[state=active]:bg-gray-100"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              WhatsApp
             </TabsTrigger>
           </TabsList>
 
@@ -2165,6 +2205,10 @@ export default function BackofficePage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+          </TabsContent>
+
+          <TabsContent value="whatsapp" className="space-y-6">
+            <ReporteWhatsapp sorteos={todosSorteos} />
           </TabsContent>
         </Tabs>
       </div>

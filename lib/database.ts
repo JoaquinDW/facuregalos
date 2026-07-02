@@ -679,6 +679,36 @@ export async function obtenerCompradores(
   }
 }
 
+// Obtener un comprador puntual por id, incluyendo el nombre del sorteo asociado.
+// Usado por la página pública de comprobante (/comprobante/[id]).
+export async function obtenerCompradorPorId(
+  compradorId: string
+): Promise<(Comprador & { sorteo_nombre?: string }) | null> {
+  try {
+    const { data, error } = await supabase
+      .from("compradores")
+      .select(
+        `
+        *,
+        sorteos!compradores_sorteo_id_fkey(nombre)
+      `
+      )
+      .eq("id", compradorId)
+      .single()
+
+    if (error || !data) {
+      console.error("Error obteniendo comprador por id:", error)
+      return null
+    }
+
+    const { sorteos, ...comprador } = data as any
+    return { ...comprador, sorteo_nombre: sorteos?.nombre }
+  } catch (error) {
+    console.error("Error obteniendo comprador por id:", error)
+    return null
+  }
+}
+
 // Nueva función: Obtener compradores del sorteo actual (más reciente)
 // SOLO compradores con estado_pago = 'pagado'
 export async function obtenerCompradoresSorteoActual(): Promise<Comprador[]> {
@@ -2090,6 +2120,162 @@ export async function actualizarPremiosSecundarios(premios: PremiosSecundarios):
   } catch (error) {
     console.error("Error actualizando premios secundarios:", error)
     return false
+  }
+}
+
+// ── WhatsApp: registro de envíos + configuración de costo/margen ─────────────
+
+export interface ConfiguracionWhatsApp {
+  costoUnitario: number
+  moneda: string
+  margen: number // fracción, ej 0.20 = 20%
+}
+
+const CONFIG_WHATSAPP_DEFAULTS: ConfiguracionWhatsApp = {
+  costoUnitario: 0.05,
+  moneda: "USD",
+  margen: 0.2,
+}
+
+export async function obtenerConfiguracionWhatsApp(): Promise<ConfiguracionWhatsApp> {
+  try {
+    const { data } = await supabase
+      .from("configuracion")
+      .select("clave, valor")
+      .in("clave", ["whatsapp_costo_unitario", "whatsapp_moneda", "whatsapp_margen"])
+
+    const map = Object.fromEntries(
+      data?.map((r: { clave: string; valor: string }) => [r.clave, r.valor]) ?? [],
+    )
+
+    return {
+      costoUnitario: map["whatsapp_costo_unitario"]
+        ? Number(map["whatsapp_costo_unitario"])
+        : CONFIG_WHATSAPP_DEFAULTS.costoUnitario,
+      moneda: map["whatsapp_moneda"] ?? CONFIG_WHATSAPP_DEFAULTS.moneda,
+      margen: map["whatsapp_margen"]
+        ? Number(map["whatsapp_margen"])
+        : CONFIG_WHATSAPP_DEFAULTS.margen,
+    }
+  } catch (error) {
+    console.error("Error obteniendo configuración de WhatsApp:", error)
+    return CONFIG_WHATSAPP_DEFAULTS
+  }
+}
+
+export async function actualizarConfiguracionWhatsApp(
+  config: ConfiguracionWhatsApp,
+): Promise<boolean> {
+  try {
+    const now = new Date().toISOString()
+    const { error } = await supabase.from("configuracion").upsert([
+      { clave: "whatsapp_costo_unitario", valor: String(config.costoUnitario), updated_at: now },
+      { clave: "whatsapp_moneda", valor: config.moneda, updated_at: now },
+      { clave: "whatsapp_margen", valor: String(config.margen), updated_at: now },
+    ])
+
+    if (error) {
+      console.error("Error actualizando configuración de WhatsApp:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error actualizando configuración de WhatsApp:", error)
+    return false
+  }
+}
+
+export interface RegistrarEnvioWhatsAppInput {
+  comprador_id?: string | null
+  sorteo_id?: string | null
+  telefono?: string | null
+  provider: string
+  provider_message_id?: string | null
+  estado: "enviado" | "error"
+  costo_unitario: number
+  moneda: string
+}
+
+export async function registrarEnvioWhatsApp(
+  input: RegistrarEnvioWhatsAppInput,
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("whatsapp_envios").insert([input])
+    if (error) {
+      console.error("Error registrando envío de WhatsApp:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error registrando envío de WhatsApp:", error)
+    return false
+  }
+}
+
+export interface ReporteWhatsApp {
+  cantidad: number
+  costoBase: number
+  costoConMargen: number
+  moneda: string
+  margen: number
+  porMes: { mes: string; cantidad: number; costoBase: number; costoConMargen: number }[]
+}
+
+// Reporte de envíos facturables (estado 'enviado'). Volumen bajo → se agrega en JS.
+export async function obtenerReporteWhatsApp(filtros?: {
+  desde?: string
+  hasta?: string
+  sorteoId?: string
+}): Promise<ReporteWhatsApp> {
+  const { margen, moneda } = await obtenerConfiguracionWhatsApp()
+  try {
+    let query = supabase
+      .from("whatsapp_envios")
+      .select("costo_unitario, created_at, moneda")
+      .eq("estado", "enviado")
+
+    if (filtros?.desde) query = query.gte("created_at", filtros.desde)
+    if (filtros?.hasta) query = query.lte("created_at", filtros.hasta)
+    if (filtros?.sorteoId) query = query.eq("sorteo_id", filtros.sorteoId)
+
+    const { data, error } = await query
+    if (error) {
+      console.error("Error obteniendo reporte de WhatsApp:", error)
+      return { cantidad: 0, costoBase: 0, costoConMargen: 0, moneda, margen, porMes: [] }
+    }
+
+    const rows = data ?? []
+    const costoBase = rows.reduce((acc, r: any) => acc + (Number(r.costo_unitario) || 0), 0)
+
+    const porMesMap = new Map<string, { cantidad: number; costoBase: number }>()
+    for (const r of rows as any[]) {
+      const mes = (r.created_at as string).slice(0, 7) // YYYY-MM
+      const prev = porMesMap.get(mes) ?? { cantidad: 0, costoBase: 0 }
+      prev.cantidad += 1
+      prev.costoBase += Number(r.costo_unitario) || 0
+      porMesMap.set(mes, prev)
+    }
+
+    const porMes = [...porMesMap.entries()]
+      .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+      .map(([mes, v]) => ({
+        mes,
+        cantidad: v.cantidad,
+        costoBase: v.costoBase,
+        costoConMargen: v.costoBase * (1 + margen),
+      }))
+
+    return {
+      cantidad: rows.length,
+      costoBase,
+      costoConMargen: costoBase * (1 + margen),
+      moneda,
+      margen,
+      porMes,
+    }
+  } catch (error) {
+    console.error("Error obteniendo reporte de WhatsApp:", error)
+    return { cantidad: 0, costoBase: 0, costoConMargen: 0, moneda, margen, porMes: [] }
   }
 }
 
