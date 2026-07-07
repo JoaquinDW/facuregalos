@@ -178,9 +178,6 @@ export function TransferenciasPendientes({
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {transferencia.email && (
-                        <div className="text-sm">{transferencia.email}</div>
-                      )}
                       {transferencia.instagram_username ? (
                         <div className="text-sm text-gray-500">
                           📷 @{transferencia.instagram_username}
@@ -275,11 +272,6 @@ export function TransferenciasPendientes({
             {compradorSeleccionado && (
               <>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  {compradorSeleccionado.email && (
-                    <div>
-                      <strong>Email:</strong> {compradorSeleccionado.email}
-                    </div>
-                  )}
                   {compradorSeleccionado.instagram_username ? (
                     <div>
                       <strong>Instagram:</strong> @{compradorSeleccionado.instagram_username}
