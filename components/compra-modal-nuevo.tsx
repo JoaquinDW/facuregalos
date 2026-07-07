@@ -21,8 +21,7 @@ interface CompraModalProps {
   onCompraMercadoPago: (nombre: string, email: string, contacto: string) => void
   onCompraTransferencia: (data: {
     nombre: string
-    email: string
-    contacto: string
+    telefono: string
     comprobanteFile: File
   }) => void
 }
@@ -161,8 +160,7 @@ export function CompraModalNuevo({
 
   const handleSubmitTransferencia = async (data: {
     nombre: string
-    email: string
-    contacto: string
+    telefono: string
     comprobanteFile: File
   }) => {
     await onCompraTransferencia(data)

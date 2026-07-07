@@ -225,24 +225,16 @@ export default function LandingPage() {
 
   const procesarTransferencia = async (data: {
     nombre: string
-    email: string
-    contacto: string
+    telefono: string
     comprobanteFile: File
   }) => {
     if (!packSeleccionado || !sorteo) return
 
     try {
-      const esWhatsApp = /^[\d\s+()-]+$/.test(data.contacto.trim())
-
       const formData = new FormData()
       formData.append("sorteoId", sorteo.id)
       formData.append("nombre", data.nombre)
-      if (data.email) formData.append("email", data.email)
-      if (esWhatsApp) {
-        formData.append("telefono", data.contacto)
-      } else {
-        formData.append("instagram_username", data.contacto.replace("@", ""))
-      }
+      formData.append("telefono", data.telefono)
       formData.append("cantidadChances", packSeleccionado.chances.toString())
       formData.append("comprobante", data.comprobanteFile)
 
@@ -261,7 +253,7 @@ export default function LandingPage() {
       toast({
         title: "¡Transferencia registrada!",
         description:
-          "Tu pago está pendiente de confirmación. Te notificaremos por email cuando sea aprobado.",
+          "Tu pago está pendiente de confirmación. Te notificaremos por WhatsApp cuando sea aprobado.",
         duration: 5000,
       })
 

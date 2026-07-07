@@ -17,8 +17,7 @@ interface TransferenciaModalProps {
   } | null
   onSubmit: (data: {
     nombre: string
-    email: string
-    contacto: string
+    telefono: string
     comprobanteFile: File
   }) => void
   alias?: string
@@ -39,8 +38,7 @@ export function TransferenciaModal({
 }: TransferenciaModalProps) {
   const [formData, setFormData] = useState({
     nombre: "",
-    email: "",
-    contacto: "",
+    telefono: "",
   })
   const [comprobanteFile, setComprobanteFile] = useState<File | null>(null)
   const [dragOver, setDragOver] = useState(false)
@@ -129,11 +127,22 @@ export function TransferenciaModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.nombre || !formData.contacto) {
+    if (!formData.nombre || !formData.telefono) {
       toast({
         variant: "destructive",
         title: "Campos incompletos",
         description: "Por favor completá todos los campos requeridos",
+      })
+      return
+    }
+
+    // Validar que el WhatsApp sea un número válido
+    const soloDigitos = formData.telefono.replace(/\D/g, "")
+    if (soloDigitos.length < 8) {
+      toast({
+        variant: "destructive",
+        title: "WhatsApp inválido",
+        description: "Ingresá un número de WhatsApp válido (solo números)",
       })
       return
     }
@@ -156,7 +165,7 @@ export function TransferenciaModal({
   }
 
   const resetForm = () => {
-    setFormData({ nombre: "", email: "", contacto: "" })
+    setFormData({ nombre: "", telefono: "" })
     setComprobanteFile(null)
   }
 
@@ -284,35 +293,21 @@ export function TransferenciaModal({
           </div>
 
           <div>
-            <Label htmlFor="email" className="text-gray-400 text-xs mb-1 block">
-              Email{" "}
+            <Label
+              htmlFor="telefono"
+              className="text-gray-400 text-xs mb-1 block"
+            >
+              WhatsApp *{" "}
               <span className="text-gray-600">(recibís tus números acá)</span>
             </Label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
+              id="telefono"
+              name="telefono"
+              type="tel"
+              inputMode="numeric"
+              value={formData.telefono}
               onChange={handleInputChange}
-              placeholder="juan@email.com"
-              className="bg-[#1a1812] border-[#c8cdd5]/15 text-white placeholder:text-gray-600 focus:border-[#d4af37]/60 focus-visible:ring-[#d4af37]/25 h-11"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <Label
-              htmlFor="contacto"
-              className="text-gray-400 text-xs mb-1 block"
-            >
-              WhatsApp o Instagram *
-            </Label>
-            <Input
-              id="contacto"
-              name="contacto"
-              value={formData.contacto}
-              onChange={handleInputChange}
-              placeholder="3794123456 o @usuario"
+              placeholder="3794123456"
               className="bg-[#1a1812] border-[#c8cdd5]/15 text-white placeholder:text-gray-600 focus:border-[#d4af37]/60 focus-visible:ring-[#d4af37]/25 h-11"
               disabled={loading}
             />

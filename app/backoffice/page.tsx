@@ -33,7 +33,6 @@ import {
   Play,
   History,
   Crown,
-  Mail,
   Hash,
   Clock,
   LogOut,
@@ -56,6 +55,8 @@ import {
   Eye,
   EyeOff,
   MessageCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -124,6 +125,8 @@ export default function BackofficePage() {
   )
   const [compradoresActualesFiltrados, setCompradoresActualesFiltrados] =
     useState<Comprador[]>([])
+  const [paginaActuales, setPaginaActuales] = useState(1)
+  const COMPRADORES_POR_PAGINA = 20
 
   // Compradores del sorteo seleccionado en histórico
   const [compradoresHistorico, setCompradoresHistorico] = useState<Comprador[]>(
@@ -337,6 +340,7 @@ export default function BackofficePage() {
     }
 
     setCompradoresActualesFiltrados(resultado)
+    setPaginaActuales(1)
   }
 
   // Búsqueda para compradores históricos
@@ -384,7 +388,6 @@ export default function BackofficePage() {
   const exportarCompradoresExcel = () => {
     const datos = compradoresHistorico.map((c) => ({
       Nombre: c.nombre,
-      Email: c.email || "",
       Contacto: c.instagram_username
         ? `@${c.instagram_username}`
         : c.telefono || "",
@@ -399,6 +402,29 @@ export default function BackofficePage() {
     const nombreArchivo = sorteoObj
       ? `compradores-${sorteoObj.nombre.replace(/\s+/g, "-")}.xlsx`
       : "compradores.xlsx"
+    XLSX.writeFile(wb, nombreArchivo)
+  }
+
+  // Función para exportar todos los compradores del sorteo actual a Excel
+  const exportarCompradoresActualesExcel = () => {
+    const datos = compradoresActuales.map((c) => ({
+      Nombre: c.nombre,
+      Contacto: c.instagram_username
+        ? `@${c.instagram_username}`
+        : c.telefono || "",
+      Chances: c.cantidad_chances,
+      Números: c.numeros_asignados.join(", "),
+      Precio: c.precio_pagado,
+      Estado: c.estado_pago,
+      Fecha: new Date(c.created_at).toLocaleDateString(),
+    }))
+
+    const ws = XLSX.utils.json_to_sheet(datos)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Compradores")
+    const nombreArchivo = sorteoActual
+      ? `compradores-${sorteoActual.nombre.replace(/\s+/g, "-")}.xlsx`
+      : "compradores-sorteo-actual.xlsx"
     XLSX.writeFile(wb, nombreArchivo)
   }
 
@@ -1480,9 +1506,20 @@ export default function BackofficePage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">
-                  Compradores del Sorteo Actual
-                </CardTitle>
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <CardTitle className="text-lg">
+                    Compradores del Sorteo Actual
+                  </CardTitle>
+                  <Button
+                    onClick={exportarCompradoresActualesExcel}
+                    variant="outline"
+                    size="sm"
+                    disabled={compradoresActuales.length === 0}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Exportar a Excel
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {compradoresActualesFiltrados.length === 0 ? (
@@ -1500,8 +1537,7 @@ export default function BackofficePage() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Nombre</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Contacto</TableHead>
+                          <TableHead>WhatsApp</TableHead>
                           <TableHead>Chances</TableHead>
                           <TableHead>Números</TableHead>
                           <TableHead>Precio</TableHead>
@@ -1511,7 +1547,12 @@ export default function BackofficePage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {compradoresActualesFiltrados.map((comprador) => (
+                        {compradoresActualesFiltrados
+                          .slice(
+                            (paginaActuales - 1) * COMPRADORES_POR_PAGINA,
+                            paginaActuales * COMPRADORES_POR_PAGINA,
+                          )
+                          .map((comprador) => (
                           <TableRow key={comprador.id}>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-2">
@@ -1520,16 +1561,6 @@ export default function BackofficePage() {
                                 )}
                                 {comprador.nombre}
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              {comprador.email ? (
-                                <div className="flex items-center gap-2 text-gray-600">
-                                  <Mail className="w-4 h-4" />
-                                  {comprador.email}
-                                </div>
-                              ) : (
-                                <span className="text-gray-400 text-sm">-</span>
-                              )}
                             </TableCell>
                             <TableCell>
                               {comprador.instagram_username ? (
@@ -1670,6 +1701,66 @@ export default function BackofficePage() {
                         ))}
                       </TableBody>
                     </Table>
+                    {compradoresActualesFiltrados.length >
+                      COMPRADORES_POR_PAGINA && (
+                      <div className="flex items-center justify-between mt-4 flex-wrap gap-2">
+                        <p className="text-sm text-gray-600">
+                          Mostrando{" "}
+                          {(paginaActuales - 1) * COMPRADORES_POR_PAGINA + 1}
+                          {" - "}
+                          {Math.min(
+                            paginaActuales * COMPRADORES_POR_PAGINA,
+                            compradoresActualesFiltrados.length,
+                          )}{" "}
+                          de {compradoresActualesFiltrados.length}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setPaginaActuales((p) => Math.max(1, p - 1))
+                            }
+                            disabled={paginaActuales === 1}
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                            Anterior
+                          </Button>
+                          <span className="text-sm text-gray-600">
+                            Página {paginaActuales} de{" "}
+                            {Math.ceil(
+                              compradoresActualesFiltrados.length /
+                                COMPRADORES_POR_PAGINA,
+                            )}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setPaginaActuales((p) =>
+                                Math.min(
+                                  Math.ceil(
+                                    compradoresActualesFiltrados.length /
+                                      COMPRADORES_POR_PAGINA,
+                                  ),
+                                  p + 1,
+                                ),
+                              )
+                            }
+                            disabled={
+                              paginaActuales >=
+                              Math.ceil(
+                                compradoresActualesFiltrados.length /
+                                  COMPRADORES_POR_PAGINA,
+                              )
+                            }
+                          >
+                            Siguiente
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -1798,8 +1889,7 @@ export default function BackofficePage() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Nombre</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Contacto</TableHead>
+                            <TableHead>WhatsApp</TableHead>
                             <TableHead>Chances</TableHead>
                             <TableHead>Números</TableHead>
                             <TableHead>Precio</TableHead>
@@ -1818,18 +1908,6 @@ export default function BackofficePage() {
                                   )}
                                   {comprador.nombre}
                                 </div>
-                              </TableCell>
-                              <TableCell>
-                                {comprador.email ? (
-                                  <div className="flex items-center gap-2 text-gray-600">
-                                    <Mail className="w-4 h-4" />
-                                    {comprador.email}
-                                  </div>
-                                ) : (
-                                  <span className="text-gray-400 text-sm">
-                                    -
-                                  </span>
-                                )}
                               </TableCell>
                               <TableCell>
                                 {comprador.instagram_username ? (

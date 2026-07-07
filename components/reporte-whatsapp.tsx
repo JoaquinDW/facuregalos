@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { MessageCircle, Save, Lock, Unlock } from "lucide-react"
+import { MessageCircle, Save } from "lucide-react"
 import {
   obtenerConfiguracionWhatsApp,
   actualizarConfiguracionWhatsApp,
@@ -18,16 +18,13 @@ import { useToast } from "@/hooks/use-toast"
 
 interface Props {
   sorteos: Sorteo[]
+  // Modo dueño: muestra el costo base de Twilio y el margen. Solo se activa
+  // desde la ruta privada /backoffice/owner. El cliente (Facu) nunca lo ve.
+  ownerMode?: boolean
 }
 
-export function ReporteWhatsapp({ sorteos }: Props) {
+export function ReporteWhatsapp({ sorteos, ownerMode = false }: Props) {
   const { toast } = useToast()
-
-  // Modo dueño: oculta el costo base y el margen al cliente (Facu).
-  const [ownerMode, setOwnerMode] = useState(false)
-  const [mostrarUnlock, setMostrarUnlock] = useState(false)
-  const [ownerPass, setOwnerPass] = useState("")
-  const [verificando, setVerificando] = useState(false)
 
   const [costoUnitario, setCostoUnitario] = useState("0.05")
   const [moneda, setMoneda] = useState("USD")
@@ -50,7 +47,6 @@ export function ReporteWhatsapp({ sorteos }: Props) {
   }
 
   useEffect(() => {
-    setOwnerMode(localStorage.getItem("whatsapp_owner_mode") === "true")
     ;(async () => {
       const config = await obtenerConfiguracionWhatsApp()
       setCostoUnitario(String(config.costoUnitario))
@@ -60,34 +56,6 @@ export function ReporteWhatsapp({ sorteos }: Props) {
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const verificarOwner = async () => {
-    setVerificando(true)
-    try {
-      const res = await fetch("/api/owner-verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: ownerPass }),
-      })
-      if (res.ok) {
-        localStorage.setItem("whatsapp_owner_mode", "true")
-        setOwnerMode(true)
-        setMostrarUnlock(false)
-        setOwnerPass("")
-      } else {
-        toast({ variant: "destructive", title: "Contraseña incorrecta" })
-      }
-    } catch {
-      toast({ variant: "destructive", title: "No se pudo verificar" })
-    } finally {
-      setVerificando(false)
-    }
-  }
-
-  const salirOwner = () => {
-    localStorage.removeItem("whatsapp_owner_mode")
-    setOwnerMode(false)
-  }
 
   const guardar = async () => {
     setGuardando(true)
@@ -163,46 +131,12 @@ export function ReporteWhatsapp({ sorteos }: Props) {
       {/* Reporte */}
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle>Costo del servicio de WhatsApp</CardTitle>
-              <p className="text-sm text-muted-foreground pt-1">
-                Mensajes de confirmación enviados a los compradores.
-              </p>
-            </div>
-            {/* Control de modo dueño */}
-            {ownerMode ? (
-              <Button variant="ghost" size="sm" onClick={salirOwner} className="text-muted-foreground">
-                <Unlock className="w-4 h-4 mr-1" />
-                Modo dueño
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMostrarUnlock((v) => !v)}
-                className="text-muted-foreground"
-              >
-                <Lock className="w-4 h-4" />
-              </Button>
-            )}
+          <div>
+            <CardTitle>Costo del servicio de WhatsApp</CardTitle>
+            <p className="text-sm text-muted-foreground pt-1">
+              Mensajes de confirmación enviados a los compradores.
+            </p>
           </div>
-
-          {!ownerMode && mostrarUnlock && (
-            <div className="flex gap-2 pt-3">
-              <Input
-                type="password"
-                value={ownerPass}
-                onChange={(e) => setOwnerPass(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && verificarOwner()}
-                placeholder="Contraseña de dueño"
-                className="max-w-[220px]"
-              />
-              <Button onClick={verificarOwner} disabled={verificando} size="sm">
-                {verificando ? "..." : "Entrar"}
-              </Button>
-            </div>
-          )}
 
           <div className="pt-3">
             <Label className="text-sm">Filtrar por sorteo</Label>

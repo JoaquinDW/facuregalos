@@ -7,9 +7,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
 
     const nombre = formData.get("nombre") as string
-    const email = formData.get("email") as string
     const telefono = formData.get("telefono") as string
-    const instagram_username = formData.get("instagram_username") as string
     const sorteoId = formData.get("sorteoId") as string
     const cantidadChances = Number.parseInt(formData.get("cantidadChances") as string)
     const comprobanteFile = formData.get("comprobante") as File
@@ -19,10 +17,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Faltan datos requeridos" }, { status: 400 })
     }
 
-    // Validar que al menos tenga un método de contacto
-    if (!telefono && !instagram_username) {
+    // Validar que el WhatsApp sea un número válido (obligatorio)
+    if (!telefono || telefono.replace(/\D/g, "").length < 8) {
       return NextResponse.json(
-        { error: "Debe proporcionar al menos un método de contacto (WhatsApp o Instagram)" },
+        { error: "Debe proporcionar un número de WhatsApp válido" },
         { status: 400 }
       )
     }
@@ -34,9 +32,7 @@ export async function POST(request: NextRequest) {
     const nuevoComprador = await crearCompradorTransferencia({
       sorteoId,
       nombre,
-      email: email || undefined,
-      telefono: telefono || undefined,
-      instagram_username: instagram_username || undefined,
+      telefono,
       cantidadChances: cantidadChances,
       comprobanteUrl,
     })
