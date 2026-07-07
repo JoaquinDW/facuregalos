@@ -66,16 +66,21 @@ export default function ComprobantePage() {
 
         {!cargando && error && (
           <div>
-            <h1 className="mb-2 text-xl font-bold text-[#ffe9a8]">Comprobante no disponible</h1>
+            <h1 className="mb-2 text-xl font-bold text-[#ffe9a8]">
+              Comprobante no disponible
+            </h1>
             <p className="text-[#9aa1ac]">{error}</p>
           </div>
         )}
 
         {!cargando && !error && data && (
           <div>
-            <h1 className="mb-1 text-2xl font-bold text-[#ffe9a8]">¡Tu comprobante!</h1>
+            <h1 className="mb-1 text-2xl font-bold text-[#ffe9a8]">
+              ¡Tu comprobante!
+            </h1>
             <p className="mb-4 text-sm text-[#9aa1ac]">
-              Estás participando por <span className="text-[#f0d98a]">{data.premio}</span>
+              Estás participando por{" "}
+              <span className="text-[#f0d98a]">{data.premio}</span>
             </p>
 
             {imgUrl ? (
@@ -89,14 +94,19 @@ export default function ComprobantePage() {
               <div className="mb-4 space-y-2 rounded-xl border border-[#d4af37]/20 bg-[#0c0b09] p-4 text-left">
                 <p>
                   <span className="text-[#9aa1ac]">Comprador:</span>{" "}
-                  <span className="text-[#f0d98a]">{data.comprador.nombre}</span>
+                  <span className="text-[#f0d98a]">
+                    {data.comprador.nombre}
+                  </span>
                 </p>
                 <p>
-                  <span className="text-[#9aa1ac]">Chances:</span> {data.comprador.cantidad_chances}
+                  <span className="text-[#9aa1ac]">Chances:</span>{" "}
+                  {data.comprador.cantidad_chances}
                 </p>
                 <p className="break-words">
                   <span className="text-[#9aa1ac]">Tus números:</span>{" "}
-                  {[...data.comprador.numeros_asignados].sort((a, b) => a - b).join(", ")}
+                  {[...data.comprador.numeros_asignados]
+                    .sort((a, b) => a - b)
+                    .join(", ")}
                 </p>
               </div>
             )}
@@ -109,8 +119,16 @@ export default function ComprobantePage() {
               {descargando ? "Generando…" : "Descargar comprobante"}
             </button>
 
+            <a
+              href="/libros"
+              className="mt-3 block w-full rounded-xl border border-[#d4af37]/40 bg-[#0c0b09] px-6 py-3 font-bold text-[#f0d98a] transition hover:bg-[#14120e]"
+            >
+              Descargá tus libros
+            </a>
+
             <p className="mt-3 text-xs text-[#9aa1ac]">
-              En el celular podés mantener presionada la imagen para guardarla. 🍀
+              En el celular podés mantener presionada la imagen para guardarla.
+              🍀
             </p>
           </div>
         )}
