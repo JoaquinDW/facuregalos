@@ -121,7 +121,7 @@ const SECCIONES: Seccion[] = [
       { key: "consulta_kicker", label: "Texto chico arriba del título" },
       { key: "consulta_titulo", label: "Título de la sección" },
       { key: "consulta_descripcion", label: "Descripción", multiline: true },
-      { key: "consulta_placeholder", label: "Placeholder del campo de email" },
+      { key: "consulta_placeholder", label: "Placeholder del campo de WhatsApp" },
       { key: "consulta_boton", label: "Texto del botón" },
       { key: "consulta_vacio", label: "Mensaje cuando no hay resultados" },
       { key: "consulta_vacio_nota", label: "Nota cuando no hay resultados" },

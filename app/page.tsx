@@ -55,7 +55,7 @@ export default function LandingPage() {
   } | null>(null)
   const [animacionVisible, setAnimacionVisible] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [consultaEmail, setConsultaEmail] = useState("")
+  const [consultaTelefono, setConsultaTelefono] = useState("")
   const [consultaLoading, setConsultaLoading] = useState(false)
   const [consultaResultados, setConsultaResultados] = useState<Array<{
     id: string
@@ -289,14 +289,14 @@ export default function LandingPage() {
 
   const consultarMisNumeros = async (e: React.FormEvent) => {
     e.preventDefault()
-    const emailTrimmed = consultaEmail.trim()
-    if (!emailTrimmed) return
+    const telefonoTrimmed = consultaTelefono.trim()
+    if (!telefonoTrimmed) return
     setConsultaLoading(true)
     setConsultaResultados(null)
     setConsultaError(null)
     try {
       const response = await fetch(
-        `/api/mis-numeros?email=${encodeURIComponent(emailTrimmed)}`,
+        `/api/mis-numeros?telefono=${encodeURIComponent(telefonoTrimmed)}`,
       )
       const data = await response.json()
       if (!response.ok) {
@@ -760,16 +760,17 @@ export default function LandingPage() {
               className="flex flex-col sm:flex-row gap-2 mb-6"
             >
               <input
-                type="email"
-                value={consultaEmail}
-                onChange={(e) => setConsultaEmail(e.target.value)}
+                type="tel"
+                inputMode="numeric"
+                value={consultaTelefono}
+                onChange={(e) => setConsultaTelefono(e.target.value)}
                 placeholder={contenido.consulta_placeholder}
                 disabled={consultaLoading}
                 className="input-lux flex-1 rounded-full px-5 py-3 text-sm disabled:opacity-50"
               />
               <button
                 type="submit"
-                disabled={consultaLoading || !consultaEmail.trim()}
+                disabled={consultaLoading || !consultaTelefono.trim()}
                 className="btn-gold px-7 py-3 rounded-full text-sm font-semibold tracking-wide disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none whitespace-nowrap"
               >
                 {consultaLoading ? "Buscando..." : contenido.consulta_boton}

@@ -144,10 +144,11 @@ export const CONTENIDO_DEFAULTS: ContenidoSitio = {
   consulta_kicker: "Participantes",
   consulta_titulo: "¿Ya participaste?",
   consulta_descripcion:
-    "Ingresá el email con el que compraste para ver tus números asignados.",
-  consulta_placeholder: "tucorreo@email.com",
+    "Ingresá el número de WhatsApp con el que compraste para ver tus números asignados.",
+  consulta_placeholder: "3794123456",
   consulta_boton: "Consultar",
-  consulta_vacio: "No encontramos participaciones confirmadas para ese email.",
+  consulta_vacio:
+    "No encontramos participaciones confirmadas para ese número de WhatsApp.",
   consulta_vacio_nota:
     "Si pagaste por transferencia, tu pago puede estar pendiente de aprobación.",
 
