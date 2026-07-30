@@ -712,20 +712,7 @@ export default function LandingPage() {
                   {contenido.faq_pregunta_fecha}
                 </p>
                 <span className="text-silver text-lg font-medium">
-                  {sorteo?.fecha_sorteo
-                    ? `${new Date(
-                        sorteo.fecha_sorteo + "T12:00:00",
-                      ).toLocaleDateString("es-AR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })} o ${
-                        contenido.faq_respuesta_fecha_pendiente
-                          .charAt(0)
-                          .toLowerCase() +
-                        contenido.faq_respuesta_fecha_pendiente.slice(1)
-                      }`
-                    : contenido.faq_respuesta_fecha_pendiente}
+                  {contenido.faq_respuesta_fecha_pendiente}
                 </span>
               </div>
             </Reveal>

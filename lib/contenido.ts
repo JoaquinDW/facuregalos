@@ -136,7 +136,7 @@ export const CONTENIDO_DEFAULTS: ContenidoSitio = {
 
   faq_titulo: "Preguntas frecuentes",
   faq_pregunta_fecha: "¿Cuándo se realiza el evento?",
-  faq_respuesta_fecha_pendiente: "Una vez vendido el 100% de los números",
+  faq_respuesta_fecha_pendiente: "Se llega al 100% y se busca a la familia ganadora",
   faq_pregunta_ganador: "¿En dónde vemos el ganador?",
   faq_respuesta_ganador: "Transmisión en vivo en mi perfil de Facebook",
   faq_link_quiniela: "https://www.facebook.com/facundobz.2688/",
