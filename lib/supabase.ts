@@ -121,6 +121,21 @@ export interface GanadorExpress {
   updated_at: string
 }
 
+export interface SorteoDiario {
+  id: string
+  sorteo_id: string
+  fecha: string // 'YYYY-MM-DD' — día cuyos compradores participan
+  tipo_participantes: string // 'todos' | 'primeros_x'
+  cantidad_participantes: number | null
+  premio: string
+  total_participantes: number
+  ganador_comprador_id: string | null
+  ganador_nombre: string | null
+  ganador_numero: number | null
+  visible: boolean
+  created_at: string
+}
+
 export interface MuralGanador {
   id: string
   imagen_url: string

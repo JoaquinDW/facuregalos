@@ -57,6 +57,7 @@ import {
   MessageCircle,
   ChevronLeft,
   ChevronRight,
+  Gift,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -81,6 +82,7 @@ import { CarouselManager } from "@/components/carousel-manager"
 import { GestionGanadores } from "@/components/gestion-ganadores"
 import { GestionMural } from "@/components/gestion-mural"
 import { GanadoresExpressModal } from "@/components/ganadores-express-modal"
+import { SorteosDiariosManager } from "@/components/sorteos-diarios-manager"
 import { ConfirmarEliminarModal } from "@/components/confirmar-eliminar-modal"
 import { FinalizarSorteoModal } from "@/components/finalizar-sorteo-modal"
 import { PremiosSecundariosManager } from "@/components/premios-secundarios-manager"
@@ -1163,6 +1165,13 @@ export default function BackofficePage() {
               Mural Ganadores
             </TabsTrigger>
             <TabsTrigger
+              value="sorteos-diarios"
+              className="data-[state=active]:bg-gray-100"
+            >
+              <Gift className="w-4 h-4 mr-2" />
+              Regalos Diarios
+            </TabsTrigger>
+            <TabsTrigger
               value="express"
               className="data-[state=active]:bg-gray-100"
             >
@@ -2096,6 +2105,18 @@ export default function BackofficePage() {
               premios={premiosSecundarios}
               onActualizado={setPremiosSecundarios}
             />
+          </TabsContent>
+
+          <TabsContent value="sorteos-diarios" className="space-y-6">
+            {!sorteoActual ? (
+              <Card>
+                <CardContent className="text-center py-8 text-muted-foreground">
+                  No hay sorteo activo
+                </CardContent>
+              </Card>
+            ) : (
+              <SorteosDiariosManager sorteoId={sorteoActual.id} />
+            )}
           </TabsContent>
 
           <TabsContent value="express" className="space-y-6">

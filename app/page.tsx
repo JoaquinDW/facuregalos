@@ -15,6 +15,7 @@ import { CompraModalNuevo } from "@/components/compra-modal-nuevo"
 import { Header } from "@/components/header"
 import { GanadoresPasados } from "@/components/ganadores-pasados"
 import { GanadoresExpress } from "@/components/ganadores-express"
+import { PromoDiaria } from "@/components/promo-diaria"
 import { MuralGanadores } from "@/components/mural-ganadores"
 import { RedesSociales } from "@/components/redes-sociales"
 import { Reveal } from "@/components/reveal"
@@ -648,54 +649,61 @@ export default function LandingPage() {
               </div>
             </Reveal>
 
-            {/* Premios Secundarios */}
-            {premiosSecundarios?.visible &&
-              premiosSecundarios.numeros.length > 0 && (
-                <Reveal variant="right" delay={100}>
-                  <div className="card-lux p-6 md:p-8 h-full">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Trophy className="w-4 h-4 text-[#d4af37]" />
-                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid">
-                        {contenido.premios_sec_label}
+            {/* Regalo diario (promo para incentivar la compra del día) */}
+            <PromoDiaria sorteoId={sorteo.id} />
+
+            {/*
+              Premios secundarios (Números Bendecidos): reemplazado por la promo
+              de sorteos diarios. Se deja comentado (no eliminado) por si se
+              quiere reactivar. El manager del backoffice y la lógica en
+              lib/database.ts (obtener/actualizarPremiosSecundarios) siguen intactos.
+
+              {premiosSecundarios?.visible &&
+                premiosSecundarios.numeros.length > 0 && (
+                  <Reveal variant="right" delay={100}>
+                    <div className="card-lux p-6 md:p-8 h-full">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Trophy className="w-4 h-4 text-[#d4af37]" />
+                        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid">
+                          {contenido.premios_sec_label}
+                        </p>
+                      </div>
+
+                      <p className="text-base font-semibold text-silver mb-4">
+                        {premiosSecundarios.titulo}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {premiosSecundarios.numeros.map((num) => {
+                          const tachado = premiosSecundarios.tachados?.includes(num)
+                          return (
+                            <span
+                              key={num}
+                              className={"chip-gold font-mono font-bold text-xl rounded-lg px-4 py-1.5 " + (tachado ? "line-through opacity-50" : "")}
+                            >
+                              {num}
+                            </span>
+                          )
+                        })}
+                      </div>
+                      <p className="text-xs text-silver-muted leading-relaxed">
+                        {contenido.premios_sec_descripcion
+                          .split("{monto}")
+                          .map((parte, i, partes) => (
+                            <span key={i}>
+                              {parte}
+                              {i < partes.length - 1 && (
+                                <span className="font-semibold text-silver">
+                                  {premiosSecundarios.monto}
+                                </span>
+                              )}
+                            </span>
+                          ))}
                       </p>
                     </div>
-
-                    <p className="text-base font-semibold text-silver mb-4">
-                      {premiosSecundarios.titulo}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {premiosSecundarios.numeros.map((num) => {
-                        const tachado = premiosSecundarios.tachados?.includes(num)
-                        return (
-                          <span
-                            key={num}
-                            className={`chip-gold font-mono font-bold text-xl rounded-lg px-4 py-1.5 ${
-                              tachado ? "line-through opacity-50" : ""
-                            }`}
-                          >
-                            {num}
-                          </span>
-                        )
-                      })}
-                    </div>
-                    <p className="text-xs text-silver-muted leading-relaxed">
-                      {contenido.premios_sec_descripcion
-                        .split("{monto}")
-                        .map((parte, i, partes) => (
-                          <span key={i}>
-                            {parte}
-                            {i < partes.length - 1 && (
-                              <span className="font-semibold text-silver">
-                                {premiosSecundarios.monto}
-                              </span>
-                            )}
-                          </span>
-                        ))}
-                    </p>
-                  </div>
-                </Reveal>
-              )}
+                  </Reveal>
+                )}
+            */}
           </div>
         </div>
       </section>

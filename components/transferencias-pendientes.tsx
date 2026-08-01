@@ -131,6 +131,12 @@ export function TransferenciasPendientes({
     return comprador.comprobante_url || comprador.mercadopago_id || ""
   }
 
+  const esPdf = (url: string): boolean => {
+    // Ignorar query params al chequear la extensión
+    const sinQuery = url.split("?")[0].toLowerCase()
+    return sinQuery.endsWith(".pdf")
+  }
+
   if (transferencias.length === 0) {
     return (
       <Card>
@@ -300,17 +306,36 @@ export function TransferenciasPendientes({
                     Comprobante de transferencia:
                   </h4>
                   {obtenerUrlComprobante(compradorSeleccionado) ? (
-                    <a
-                      href={obtenerUrlComprobante(compradorSeleccionado)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        src={obtenerUrlComprobante(compradorSeleccionado)}
-                        alt="Comprobante de transferencia"
-                        className="max-w-80 h-auto rounded border"
-                      />
-                    </a>
+                    esPdf(obtenerUrlComprobante(compradorSeleccionado)) ? (
+                      <div className="space-y-2">
+                        <iframe
+                          src={obtenerUrlComprobante(compradorSeleccionado)}
+                          title="Comprobante de transferencia (PDF)"
+                          className="w-full h-[500px] rounded border"
+                        />
+                        <a
+                          href={obtenerUrlComprobante(compradorSeleccionado)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                        >
+                          <FileText className="h-4 w-4" />
+                          Abrir PDF en una pestaña nueva
+                        </a>
+                      </div>
+                    ) : (
+                      <a
+                        href={obtenerUrlComprobante(compradorSeleccionado)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          src={obtenerUrlComprobante(compradorSeleccionado)}
+                          alt="Comprobante de transferencia"
+                          className="max-w-80 h-auto rounded border"
+                        />
+                      </a>
+                    )
                   ) : (
                     <p className="text-gray-500">No se encontró comprobante</p>
                   )}

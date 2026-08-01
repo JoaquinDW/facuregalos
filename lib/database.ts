@@ -1,5 +1,5 @@
 import { supabase } from "./supabase"
-import type { Comprador, Sorteo, GanadorExpress, ConfiguracionTransferencia, MuralGanador, LibroDigital } from "./supabase"
+import type { Comprador, Sorteo, GanadorExpress, ConfiguracionTransferencia, MuralGanador, LibroDigital, SorteoDiario } from "./supabase"
 
 // Verificar si las tablas existen
 export async function verificarTablas(): Promise<boolean> {
@@ -2127,6 +2127,262 @@ export async function actualizarPremiosSecundarios(premios: PremiosSecundarios):
     return true
   } catch (error) {
     console.error("Error actualizando premios secundarios:", error)
+    return false
+  }
+}
+
+// ── Sorteos Diarios ──────────────────────────────────────────────────────────
+// Sortea un premio entre las personas que compraron un día determinado.
+// El ganador se elige de forma aleatoria automática entre los compradores
+// pagados de ese día (todos, o los primeros X ordenados por hora de compra).
+
+// Card promocional de la landing (editable desde el backoffice)
+export interface PromoDiaria {
+  titulo: string
+  premio: string
+  descripcion: string
+  visible: boolean
+}
+
+const PROMO_DIARIA_DEFAULTS: PromoDiaria = {
+  titulo: "REGALO DEL DÍA",
+  premio: "$50.000",
+  descripcion:
+    "¡Comprá hoy y participá! Todos los días regalamos un premio entre los compradores del día anterior.",
+  visible: false,
+}
+
+export async function obtenerPromoDiaria(): Promise<PromoDiaria> {
+  try {
+    const { data } = await supabase
+      .from("configuracion")
+      .select("clave, valor")
+      .in("clave", [
+        "promo_diaria_titulo",
+        "promo_diaria_premio",
+        "promo_diaria_descripcion",
+        "promo_diaria_visible",
+      ])
+
+    const map = Object.fromEntries(
+      data?.map((r: { clave: string; valor: string }) => [r.clave, r.valor]) ?? [],
+    )
+
+    return {
+      titulo: map["promo_diaria_titulo"] ?? PROMO_DIARIA_DEFAULTS.titulo,
+      premio: map["promo_diaria_premio"] ?? PROMO_DIARIA_DEFAULTS.premio,
+      descripcion: map["promo_diaria_descripcion"] ?? PROMO_DIARIA_DEFAULTS.descripcion,
+      visible: map["promo_diaria_visible"] !== undefined
+        ? map["promo_diaria_visible"] === "true"
+        : PROMO_DIARIA_DEFAULTS.visible,
+    }
+  } catch (error) {
+    console.error("Error obteniendo promo diaria:", error)
+    return PROMO_DIARIA_DEFAULTS
+  }
+}
+
+export async function actualizarPromoDiaria(promo: PromoDiaria): Promise<boolean> {
+  try {
+    const now = new Date().toISOString()
+    const { error } = await supabase.from("configuracion").upsert([
+      { clave: "promo_diaria_titulo", valor: promo.titulo, updated_at: now },
+      { clave: "promo_diaria_premio", valor: promo.premio, updated_at: now },
+      { clave: "promo_diaria_descripcion", valor: promo.descripcion, updated_at: now },
+      { clave: "promo_diaria_visible", valor: String(promo.visible), updated_at: now },
+    ])
+
+    if (error) {
+      console.error("Error actualizando promo diaria:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error actualizando promo diaria:", error)
+    return false
+  }
+}
+
+// Rango UTC [inicio, fin) que corresponde al día calendario `fecha` en Argentina (UTC-3)
+function rangoDiaArgentina(fecha: string): { inicio: string; fin: string } {
+  const inicio = new Date(`${fecha}T00:00:00-03:00`)
+  const fin = new Date(inicio.getTime() + 24 * 60 * 60 * 1000)
+  return { inicio: inicio.toISOString(), fin: fin.toISOString() }
+}
+
+// Compradores pagados de un día. Si tipo = 'primeros_x' devuelve solo los
+// primeros `cantidad` ordenados por hora de compra (ascendente).
+export async function obtenerCompradoresDelDia(
+  sorteoId: string,
+  fecha: string,
+  tipo: "todos" | "primeros_x",
+  cantidad?: number,
+): Promise<Comprador[]> {
+  try {
+    const { inicio, fin } = rangoDiaArgentina(fecha)
+
+    let query = supabase
+      .from("compradores")
+      .select("*")
+      .eq("sorteo_id", sorteoId)
+      .eq("estado_pago", "pagado")
+      .gte("created_at", inicio)
+      .lt("created_at", fin)
+      .order("created_at", { ascending: true })
+
+    if (tipo === "primeros_x" && cantidad && cantidad > 0) {
+      query = query.limit(cantidad)
+    }
+
+    const { data, error } = await query
+    if (error) {
+      console.error("Error obteniendo compradores del día:", error)
+      return []
+    }
+    return (data as Comprador[]) ?? []
+  } catch (error) {
+    console.error("Error obteniendo compradores del día:", error)
+    return []
+  }
+}
+
+// Realiza el sorteo del día: toma los elegibles, elige uno al azar y lo guarda.
+export async function realizarSorteoDiario(
+  sorteoId: string,
+  fecha: string,
+  tipo: "todos" | "primeros_x",
+  premio: string,
+  cantidad?: number,
+): Promise<{ sorteo?: SorteoDiario; error?: string }> {
+  try {
+    const elegibles = await obtenerCompradoresDelDia(sorteoId, fecha, tipo, cantidad)
+
+    if (elegibles.length === 0) {
+      return { error: "No hay compradores pagados para ese día" }
+    }
+
+    const ganador = elegibles[Math.floor(Math.random() * elegibles.length)]
+    const numeros = ganador.numeros_asignados ?? []
+    const ganadorNumero =
+      numeros.length > 0
+        ? numeros[Math.floor(Math.random() * numeros.length)]
+        : null
+
+    const { data, error } = await supabase
+      .from("sorteos_diarios")
+      .insert({
+        sorteo_id: sorteoId,
+        fecha,
+        tipo_participantes: tipo,
+        cantidad_participantes: tipo === "primeros_x" ? cantidad ?? null : null,
+        premio,
+        total_participantes: elegibles.length,
+        ganador_comprador_id: ganador.id,
+        ganador_nombre: ganador.nombre,
+        ganador_numero: ganadorNumero,
+        visible: true,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error guardando sorteo diario:", error)
+      return { error: "No se pudo guardar el sorteo" }
+    }
+
+    return { sorteo: data as SorteoDiario }
+  } catch (error) {
+    console.error("Error realizando sorteo diario:", error)
+    return { error: "Error inesperado al realizar el sorteo" }
+  }
+}
+
+// Historial de sorteos diarios de un sorteo (para el backoffice)
+export async function obtenerSorteosDiarios(
+  sorteoId: string,
+): Promise<SorteoDiario[]> {
+  try {
+    const { data, error } = await supabase
+      .from("sorteos_diarios")
+      .select("*")
+      .eq("sorteo_id", sorteoId)
+      .order("fecha", { ascending: false })
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error(
+        "Error obteniendo sorteos diarios:",
+        error.message,
+        error.code,
+        error.details,
+        error.hint,
+      )
+      return []
+    }
+    return (data as SorteoDiario[]) ?? []
+  } catch (error) {
+    console.error("Error obteniendo sorteos diarios:", error)
+    return []
+  }
+}
+
+// Último ganador visible (para la prueba social de la landing)
+export async function obtenerUltimoGanadorDiario(
+  sorteoId: string,
+): Promise<SorteoDiario | null> {
+  try {
+    const { data, error } = await supabase
+      .from("sorteos_diarios")
+      .select("*")
+      .eq("sorteo_id", sorteoId)
+      .eq("visible", true)
+      .order("fecha", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (error) {
+      console.error("Error obteniendo último ganador diario:", error)
+      return null
+    }
+    return (data as SorteoDiario) ?? null
+  } catch (error) {
+    console.error("Error obteniendo último ganador diario:", error)
+    return null
+  }
+}
+
+export async function actualizarVisibilidadSorteoDiario(
+  id: string,
+  visible: boolean,
+): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from("sorteos_diarios")
+      .update({ visible })
+      .eq("id", id)
+
+    if (error) {
+      console.error("Error actualizando visibilidad de sorteo diario:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error actualizando visibilidad de sorteo diario:", error)
+    return false
+  }
+}
+
+export async function eliminarSorteoDiario(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from("sorteos_diarios").delete().eq("id", id)
+    if (error) {
+      console.error("Error eliminando sorteo diario:", error)
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error("Error eliminando sorteo diario:", error)
     return false
   }
 }
