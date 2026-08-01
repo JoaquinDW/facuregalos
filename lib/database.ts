@@ -2058,6 +2058,8 @@ export async function actualizarConfiguracionTransferencia(
 // Premios secundarios (números bendecidos)
 export interface PremiosSecundarios {
   numeros: string[]
+  /** Números que ya salieron (se muestran tachados en la landing) */
+  tachados: string[]
   monto: string
   titulo: string
   visible: boolean
@@ -2065,6 +2067,7 @@ export interface PremiosSecundarios {
 
 const PREMIOS_SECUNDARIOS_DEFAULTS: PremiosSecundarios = {
   numeros: ["8899", "6868", "828", "168", "33"],
+  tachados: [],
   monto: "$50 mil",
   titulo: "NÚMEROS BENDECIDOS",
   visible: true,
@@ -2077,6 +2080,7 @@ export async function obtenerPremiosSecundarios(): Promise<PremiosSecundarios> {
       .select("clave, valor")
       .in("clave", [
         "premios_secundarios_numeros",
+        "premios_secundarios_tachados",
         "premios_secundarios_monto",
         "premios_secundarios_titulo",
         "premios_secundarios_visible",
@@ -2090,6 +2094,9 @@ export async function obtenerPremiosSecundarios(): Promise<PremiosSecundarios> {
       numeros: map["premios_secundarios_numeros"]
         ? JSON.parse(map["premios_secundarios_numeros"])
         : PREMIOS_SECUNDARIOS_DEFAULTS.numeros,
+      tachados: map["premios_secundarios_tachados"]
+        ? JSON.parse(map["premios_secundarios_tachados"])
+        : PREMIOS_SECUNDARIOS_DEFAULTS.tachados,
       monto: map["premios_secundarios_monto"] ?? PREMIOS_SECUNDARIOS_DEFAULTS.monto,
       titulo: map["premios_secundarios_titulo"] ?? PREMIOS_SECUNDARIOS_DEFAULTS.titulo,
       visible: map["premios_secundarios_visible"] !== undefined
@@ -2107,6 +2114,7 @@ export async function actualizarPremiosSecundarios(premios: PremiosSecundarios):
     const now = new Date().toISOString()
     const { error } = await supabase.from("configuracion").upsert([
       { clave: "premios_secundarios_numeros", valor: JSON.stringify(premios.numeros), updated_at: now },
+      { clave: "premios_secundarios_tachados", valor: JSON.stringify(premios.tachados ?? []), updated_at: now },
       { clave: "premios_secundarios_monto", valor: premios.monto, updated_at: now },
       { clave: "premios_secundarios_titulo", valor: premios.titulo, updated_at: now },
       { clave: "premios_secundarios_visible", valor: String(premios.visible), updated_at: now },

@@ -665,14 +665,19 @@ export default function LandingPage() {
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {premiosSecundarios.numeros.map((num) => (
-                        <span
-                          key={num}
-                          className="chip-gold font-mono font-bold text-xl rounded-lg px-4 py-1.5"
-                        >
-                          {num}
-                        </span>
-                      ))}
+                      {premiosSecundarios.numeros.map((num) => {
+                        const tachado = premiosSecundarios.tachados?.includes(num)
+                        return (
+                          <span
+                            key={num}
+                            className={`chip-gold font-mono font-bold text-xl rounded-lg px-4 py-1.5 ${
+                              tachado ? "line-through opacity-50" : ""
+                            }`}
+                          >
+                            {num}
+                          </span>
+                        )
+                      })}
                     </div>
                     <p className="text-xs text-silver-muted leading-relaxed">
                       {contenido.premios_sec_descripcion

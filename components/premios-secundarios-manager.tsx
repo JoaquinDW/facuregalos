@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { Star, X, Plus, Save } from "lucide-react"
+import { Star, Trash2, Plus, Save } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { actualizarPremiosSecundarios } from "@/lib/database"
 import type { PremiosSecundarios } from "@/lib/database"
 import { useToast } from "@/hooks/use-toast"
@@ -19,6 +19,7 @@ interface Props {
 
 export function PremiosSecundariosManager({ premios, onActualizado }: Props) {
   const [numeros, setNumeros] = useState<string[]>(premios.numeros)
+  const [tachados, setTachados] = useState<string[]>(premios.tachados ?? [])
   const [monto, setMonto] = useState(premios.monto)
   const [titulo, setTitulo] = useState(premios.titulo)
   const [visible, setVisible] = useState(premios.visible)
@@ -38,11 +39,18 @@ export function PremiosSecundariosManager({ premios, onActualizado }: Props) {
 
   const eliminarNumero = (num: string) => {
     setNumeros(numeros.filter((n) => n !== num))
+    setTachados(tachados.filter((n) => n !== num))
+  }
+
+  const toggleTachado = (num: string) => {
+    setTachados((prev) =>
+      prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num],
+    )
   }
 
   const guardar = async () => {
     setGuardando(true)
-    const nuevos: PremiosSecundarios = { numeros, monto, titulo, visible }
+    const nuevos: PremiosSecundarios = { numeros, tachados, monto, titulo, visible }
     const ok = await actualizarPremiosSecundarios(nuevos)
     setGuardando(false)
     if (ok) {
@@ -99,26 +107,63 @@ export function PremiosSecundariosManager({ premios, onActualizado }: Props) {
 
         {/* Números */}
         <div className="space-y-3">
-          <Label>Números ganadores</Label>
-          <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <Label>Números Registrados</Label>
+          <p className="text-xs text-muted-foreground">
+            Activá el interruptor de un número cuando ya salió para tacharlo. Se
+            refleja tachado en la landing.
+          </p>
+
+          <div className="rounded-lg border border-gray-200 overflow-hidden">
+            {/* Encabezado */}
+            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-2 border-b border-gray-200 bg-gray-50 text-xs font-medium text-muted-foreground">
+              <span>Número</span>
+              <span className="w-32 text-center">Tachado (ya salió)</span>
+              <span className="w-16 text-right">Acciones</span>
+            </div>
+
             {numeros.length === 0 && (
-              <span className="text-sm text-gray-400">Sin números cargados</span>
+              <div className="px-4 py-6 text-sm text-gray-400 text-center">
+                Sin números cargados
+              </div>
             )}
-            {numeros.map((num) => (
-              <Badge
-                key={num}
-                className="bg-yellow-100 text-yellow-800 border border-yellow-300 text-sm font-bold px-3 py-1 flex items-center gap-1"
-              >
-                {num}
-                <button
-                  onClick={() => eliminarNumero(num)}
-                  className="ml-1 hover:text-red-600 transition-colors"
+
+            {numeros.map((num) => {
+              const tachado = tachados.includes(num)
+              return (
+                <div
+                  key={num}
+                  className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-b-0"
                 >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            ))}
+                  <span
+                    className={cn(
+                      "text-lg font-bold font-mono",
+                      tachado ? "line-through text-gray-400" : "text-gray-900",
+                    )}
+                  >
+                    {num}
+                  </span>
+                  <div className="w-32 flex justify-center">
+                    <Switch
+                      checked={tachado}
+                      onCheckedChange={() => toggleTachado(num)}
+                      aria-label={`Marcar ${num} como ya salió`}
+                    />
+                  </div>
+                  <div className="w-16 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => eliminarNumero(num)}
+                      className="text-red-500 hover:text-red-700 transition-colors p-1"
+                      title="Eliminar número"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
           </div>
+
           <div className="flex gap-2">
             <Input
               value={nuevoNumero}

@@ -175,6 +175,7 @@ export default function BackofficePage() {
   const [premiosSecundarios, setPremiosSecundarios] =
     useState<PremiosSecundarios>({
       numeros: [],
+      tachados: [],
       monto: "$50 mil",
       titulo: "NÚMEROS BENDECIDOS",
       visible: true,
