@@ -29,10 +29,11 @@ import {
   obtenerEstadisticasSorteo,
   generarNumerosUnicos,
   obtenerPremiosSecundarios,
+  obtenerPromoDiaria,
 } from "@/lib/database"
 import { generarComprobante } from "@/lib/comprobante"
 import type { Sorteo } from "@/lib/supabase"
-import type { PremiosSecundarios } from "@/lib/database"
+import type { PremiosSecundarios, PromoDiaria as PromoDiariaType } from "@/lib/database"
 import {
   obtenerContenido,
   conPlaceholders,
@@ -69,6 +70,7 @@ export default function LandingPage() {
   const [consultaError, setConsultaError] = useState<string | null>(null)
   const [premiosSecundarios, setPremiosSecundarios] =
     useState<PremiosSecundarios | null>(null)
+  const [promoDiaria, setPromoDiaria] = useState<PromoDiariaType | null>(null)
   const [contenido, setContenido] = useState<ContenidoSitio>(CONTENIDO_DEFAULTS)
   const { toast } = useToast()
 
@@ -129,13 +131,15 @@ export default function LandingPage() {
 
   const cargarDatos = async () => {
     try {
-      const [sorteoActivo, premios, contenidoSitio] = await Promise.all([
+      const [sorteoActivo, premios, contenidoSitio, promo] = await Promise.all([
         obtenerSorteoActivo(),
         obtenerPremiosSecundarios(),
         obtenerContenido(),
+        obtenerPromoDiaria(),
       ])
       setPremiosSecundarios(premios)
       setContenido(contenidoSitio)
+      setPromoDiaria(promo)
       if (sorteoActivo) {
         setSorteo(sorteoActivo)
         const estadisticas = await obtenerEstadisticasSorteo(sorteoActivo.id)
@@ -636,21 +640,33 @@ export default function LandingPage() {
             </h2>
           </Reveal>
 
-          <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <div
+            className={`grid gap-5 mx-auto ${
+              promoDiaria?.visible ? "md:grid-cols-2 max-w-3xl" : "max-w-xl"
+            }`}
+          >
             {/* 1er Premio */}
             <Reveal variant="left">
-              <div className="border-gold-gradient p-8 text-center h-full flex flex-col justify-center">
+              <div className="border-gold-gradient p-8 md:p-10 text-center h-full flex flex-col justify-center">
                 <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-solid mb-3">
                   {contenido.premios_primer_label}
                 </p>
-                <p className="text-2xl lg:text-3xl font-lux text-silver">
+                <p
+                  className={`font-lux text-silver ${
+                    promoDiaria?.visible
+                      ? "text-2xl lg:text-3xl"
+                      : "text-3xl lg:text-4xl"
+                  }`}
+                >
                   {sorteo.titulo_remera || "Remera Exclusiva"}
                 </p>
               </div>
             </Reveal>
 
             {/* Regalo diario (promo para incentivar la compra del día) */}
-            <PromoDiaria sorteoId={sorteo.id} />
+            {promoDiaria?.visible && (
+              <PromoDiaria promo={promoDiaria} sorteoId={sorteo.id} />
+            )}
 
             {/*
               Premios secundarios (Números Bendecidos): reemplazado por la promo

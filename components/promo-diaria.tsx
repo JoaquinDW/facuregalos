@@ -9,28 +9,32 @@ import type { SorteoDiario } from "@/lib/supabase"
 
 interface PromoDiariaProps {
   sorteoId?: string
+  /** Si se pasa, se usa en lugar de hacer fetch (el padre ya la tiene) */
+  promo?: PromoDiaria
 }
 
-export function PromoDiaria({ sorteoId }: PromoDiariaProps) {
-  const [promo, setPromo] = useState<PromoDiaria | null>(null)
+export function PromoDiaria({ sorteoId, promo: promoProp }: PromoDiariaProps) {
+  const [promoFetched, setPromoFetched] = useState<PromoDiaria | null>(null)
   const [ultimoGanador, setUltimoGanador] = useState<SorteoDiario | null>(null)
+
+  const promo = promoProp ?? promoFetched
 
   useEffect(() => {
     let activo = true
     const cargar = async () => {
-      const [p, g] = await Promise.all([
-        obtenerPromoDiaria(),
+      const [g, p] = await Promise.all([
         sorteoId ? obtenerUltimoGanadorDiario(sorteoId) : Promise.resolve(null),
+        promoProp ? Promise.resolve(null) : obtenerPromoDiaria(),
       ])
       if (!activo) return
-      setPromo(p)
       setUltimoGanador(g)
+      if (p) setPromoFetched(p)
     }
     cargar()
     return () => {
       activo = false
     }
-  }, [sorteoId])
+  }, [sorteoId, promoProp])
 
   if (!promo?.visible) return null
 
