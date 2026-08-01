@@ -10,6 +10,8 @@ interface Props {
   reelNombres: string[]
   /** Resultado del sorteo. null mientras se está sorteando; se setea al terminar */
   resultado: SorteoDiario | null
+  /** Mostrar "elegido entre N compradores" (default: no) */
+  mostrarTotal?: boolean
   onClose: () => void
 }
 
@@ -26,7 +28,7 @@ function delayParaPaso(paso: number): number {
 
 const COLORES_CONFETTI = ["#d4af37", "#f5d77a", "#c0c0c0", "#ffffff", "#e8c65b"]
 
-export function SorteoDiarioReveal({ open, reelNombres, resultado, onClose }: Props) {
+export function SorteoDiarioReveal({ open, reelNombres, resultado, mostrarTotal = false, onClose }: Props) {
   const [display, setDisplay] = useState("")
   const [revelado, setRevelado] = useState(false)
   const resultadoRef = useRef(resultado)
@@ -137,8 +139,8 @@ export function SorteoDiarioReveal({ open, reelNombres, resultado, onClose }: Pr
           </div>
         )}
 
-        {/* Transparencia: entre cuántos se sorteó */}
-        {resultado && (
+        {/* Entre cuántos se eligió (opcional, se activa en el backoffice) */}
+        {mostrarTotal && resultado && (
           <p className="mt-6 text-sm text-white/50">
             Elegido al azar entre{" "}
             <span className="font-semibold text-white/80">

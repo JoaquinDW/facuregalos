@@ -15,7 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CalendarDays, Gift, Save, Trophy, Trash2, Users, Eye, EyeOff } from "lucide-react"
+import {
+  CalendarDays,
+  Gift,
+  Save,
+  Trophy,
+  Trash2,
+  Users,
+  Eye,
+  EyeOff,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   obtenerPromoDiaria,
@@ -58,6 +67,7 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
     premio: "",
     descripcion: "",
     visible: false,
+    mostrarTotalParticipantes: false,
   })
   const [guardandoPromo, setGuardandoPromo] = useState(false)
 
@@ -99,7 +109,11 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
     toast(
       ok
         ? { title: "Promo guardada" }
-        : { variant: "destructive", title: "Error", description: "No se pudo guardar la promo" },
+        : {
+            variant: "destructive",
+            title: "Error",
+            description: "No se pudo guardar la promo",
+          },
     )
   }
 
@@ -111,25 +125,43 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
   const verElegibles = async () => {
     setCargandoElegibles(true)
     setElegibles(null)
-    const lista = await obtenerCompradoresDelDia(sorteoId, fecha, tipo, cantidadNum())
+    const lista = await obtenerCompradoresDelDia(
+      sorteoId,
+      fecha,
+      tipo,
+      cantidadNum(),
+    )
     setElegibles(lista.length)
     setCargandoElegibles(false)
   }
 
   const sortear = async () => {
     if (!premio.trim()) {
-      toast({ variant: "destructive", title: "Falta el premio", description: "Indicá qué se regala" })
+      toast({
+        variant: "destructive",
+        title: "Falta el premio",
+        description: "Indicá qué se regala",
+      })
       return
     }
     if (tipo === "primeros_x" && !cantidadNum()) {
-      toast({ variant: "destructive", title: "Falta la cantidad", description: "Indicá cuántos compradores entran" })
+      toast({
+        variant: "destructive",
+        title: "Falta la cantidad",
+        description: "Indicá cuántos compradores entran",
+      })
       return
     }
 
     setSorteando(true)
 
     // 1) Traemos los participantes reales para el ciclado de la animación
-    const participantes = await obtenerCompradoresDelDia(sorteoId, fecha, tipo, cantidadNum())
+    const participantes = await obtenerCompradoresDelDia(
+      sorteoId,
+      fecha,
+      tipo,
+      cantidadNum(),
+    )
     if (participantes.length === 0) {
       setSorteando(false)
       toast({
@@ -157,7 +189,11 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
 
     if (error || !sorteo) {
       setRevealAbierto(false)
-      toast({ variant: "destructive", title: "No se pudo entregar el regalo", description: error })
+      toast({
+        variant: "destructive",
+        title: "No se pudo entregar el regalo",
+        description: error,
+      })
       return
     }
 
@@ -237,12 +273,38 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
             <Label>Descripción / mecánica</Label>
             <Input
               value={promo.descripcion}
-              onChange={(e) => setPromo({ ...promo, descripcion: e.target.value })}
+              onChange={(e) =>
+                setPromo({ ...promo, descripcion: e.target.value })
+              }
               placeholder="Comprá hoy y participá..."
             />
           </div>
 
-          <Button onClick={guardarPromo} disabled={guardandoPromo} className="bg-gray-900 hover:bg-gray-800">
+          {/* Ajuste avanzado de la animación */}
+          {/* <div className="rounded-lg border border-dashed border-gray-200 p-3">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="promo-mostrar-total"
+                checked={promo.mostrarTotalParticipantes}
+                onCheckedChange={(v) =>
+                  setPromo({ ...promo, mostrarTotalParticipantes: v })
+                }
+              />
+              <Label htmlFor="promo-mostrar-total" className="leading-tight">
+                Mostrar "elegido entre N personas" en la animación
+              </Label>
+            </div>
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Desactivado por defecto. Si lo activás, durante el sorteo se muestra
+              entre cuántos compradores se está eligiendo.
+            </p>
+          </div> */}
+
+          <Button
+            onClick={guardarPromo}
+            disabled={guardandoPromo}
+            className="bg-gray-900 hover:bg-gray-800"
+          >
             <Save className="w-4 h-4 mr-2" />
             {guardandoPromo ? "Guardando..." : "Guardar promo"}
           </Button>
@@ -331,13 +393,18 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline" onClick={verElegibles} disabled={cargandoElegibles}>
+            <Button
+              variant="outline"
+              onClick={verElegibles}
+              disabled={cargandoElegibles}
+            >
               <Users className="w-4 h-4 mr-1.5" />
               {cargandoElegibles ? "Contando..." : "Ver elegibles"}
             </Button>
             {elegibles !== null && (
               <Badge variant={elegibles > 0 ? "default" : "destructive"}>
-                {elegibles} comprador{elegibles === 1 ? "" : "es"} elegible{elegibles === 1 ? "" : "s"}
+                {elegibles} comprador{elegibles === 1 ? "" : "es"} elegible
+                {elegibles === 1 ? "" : "s"}
               </Badge>
             )}
             <Button
@@ -382,13 +449,20 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                       {s.tipo_participantes === "primeros_x"
                         ? `Primeros ${s.cantidad_participantes ?? "?"}`
                         : "Todos"}
-                      <span className="text-muted-foreground"> · {s.total_participantes}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {s.total_participantes}
+                      </span>
                     </TableCell>
-                    <TableCell className="font-semibold text-green-600">{s.premio}</TableCell>
+                    <TableCell className="font-semibold text-green-600">
+                      {s.premio}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
                         <Trophy className="w-3.5 h-3.5 text-yellow-500" />
-                        <span className="font-medium">{s.ganador_nombre ?? "—"}</span>
+                        <span className="font-medium">
+                          {s.ganador_nombre ?? "—"}
+                        </span>
                         {s.ganador_numero != null && (
                           <Badge variant="outline" className="font-mono">
                             {s.ganador_numero}
@@ -406,7 +480,11 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                         )}
                         title={s.visible ? "Visible en landing" : "Oculto"}
                       >
-                        {s.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        {s.visible ? (
+                          <Eye className="w-4 h-4" />
+                        ) : (
+                          <EyeOff className="w-4 h-4" />
+                        )}
                       </button>
                     </TableCell>
                     <TableCell className="text-right">
@@ -431,6 +509,7 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
         open={revealAbierto}
         reelNombres={reelNombres}
         resultado={resultado}
+        mostrarTotal={promo.mostrarTotalParticipantes}
         onClose={cerrarReveal}
       />
     </div>

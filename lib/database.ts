@@ -2142,6 +2142,8 @@ export interface PromoDiaria {
   premio: string
   descripcion: string
   visible: boolean
+  /** Mostrar "elegido entre N compradores" en la animación del sorteo (default: no) */
+  mostrarTotalParticipantes: boolean
 }
 
 const PROMO_DIARIA_DEFAULTS: PromoDiaria = {
@@ -2150,6 +2152,7 @@ const PROMO_DIARIA_DEFAULTS: PromoDiaria = {
   descripcion:
     "¡Comprá hoy y participá! Todos los días regalamos un premio entre los compradores del día anterior.",
   visible: false,
+  mostrarTotalParticipantes: false,
 }
 
 export async function obtenerPromoDiaria(): Promise<PromoDiaria> {
@@ -2162,6 +2165,7 @@ export async function obtenerPromoDiaria(): Promise<PromoDiaria> {
         "promo_diaria_premio",
         "promo_diaria_descripcion",
         "promo_diaria_visible",
+        "promo_diaria_mostrar_total",
       ])
 
     const map = Object.fromEntries(
@@ -2175,6 +2179,9 @@ export async function obtenerPromoDiaria(): Promise<PromoDiaria> {
       visible: map["promo_diaria_visible"] !== undefined
         ? map["promo_diaria_visible"] === "true"
         : PROMO_DIARIA_DEFAULTS.visible,
+      mostrarTotalParticipantes: map["promo_diaria_mostrar_total"] !== undefined
+        ? map["promo_diaria_mostrar_total"] === "true"
+        : PROMO_DIARIA_DEFAULTS.mostrarTotalParticipantes,
     }
   } catch (error) {
     console.error("Error obteniendo promo diaria:", error)
@@ -2190,6 +2197,7 @@ export async function actualizarPromoDiaria(promo: PromoDiaria): Promise<boolean
       { clave: "promo_diaria_premio", valor: promo.premio, updated_at: now },
       { clave: "promo_diaria_descripcion", valor: promo.descripcion, updated_at: now },
       { clave: "promo_diaria_visible", valor: String(promo.visible), updated_at: now },
+      { clave: "promo_diaria_mostrar_total", valor: String(promo.mostrarTotalParticipantes), updated_at: now },
     ])
 
     if (error) {
