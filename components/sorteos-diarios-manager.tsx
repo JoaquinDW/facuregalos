@@ -29,7 +29,10 @@ import {
   Mail,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { normalizarTelefonoAR, esNumeroTelefono } from "@/lib/whatsapp/normalizar"
+import {
+  normalizarTelefonoAR,
+  esNumeroTelefono,
+} from "@/lib/whatsapp/normalizar"
 import {
   obtenerPromoDiaria,
   actualizarPromoDiaria,
@@ -386,8 +389,8 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
             Entregar el regalo del día
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Elegí quiénes participan y el premio. El sistema toma los compradores
-            pagados (hora Argentina) y elige un ganador al azar.
+            Elegí quiénes participan y el premio. El sistema toma los
+            compradores pagados (hora Argentina) y elige un ganador al azar.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -477,8 +480,8 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
             </div>
             {tipo === "acumulado" && (
               <p className="text-xs text-muted-foreground">
-                Participan todos los compradores pagados del sorteo, desde el
-                primer día hasta este momento.
+                Participan todos los compradores, desde el primer día hasta este
+                momento.
               </p>
             )}
           </div>
