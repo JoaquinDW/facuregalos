@@ -24,18 +24,23 @@ import {
   Users,
   Eye,
   EyeOff,
+  MessageCircle,
+  AtSign,
+  Mail,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { normalizarTelefonoAR, esNumeroTelefono } from "@/lib/whatsapp/normalizar"
 import {
   obtenerPromoDiaria,
   actualizarPromoDiaria,
-  obtenerCompradoresDelDia,
+  contarElegibles,
+  obtenerNombresElegibles,
   realizarSorteoDiario,
   obtenerSorteosDiarios,
   actualizarVisibilidadSorteoDiario,
   eliminarSorteoDiario,
 } from "@/lib/database"
-import type { PromoDiaria } from "@/lib/database"
+import type { PromoDiaria, TipoParticipantes } from "@/lib/database"
 import type { SorteoDiario } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { SorteoDiarioReveal } from "@/components/sorteo-diario-reveal"
@@ -44,10 +49,15 @@ interface Props {
   sorteoId: string
 }
 
+// Hoy en Argentina (UTC-3) como 'YYYY-MM-DD'
+function hoyArgentina(): string {
+  const ar = new Date(Date.now() - 3 * 60 * 60 * 1000)
+  return ar.toISOString().slice(0, 10)
+}
+
 // Ayer en Argentina (UTC-3) como 'YYYY-MM-DD'
 function ayerArgentina(): string {
-  const ahora = new Date()
-  const ar = new Date(ahora.getTime() - 3 * 60 * 60 * 1000) // a hora AR
+  const ar = new Date(Date.now() - 3 * 60 * 60 * 1000)
   ar.setUTCDate(ar.getUTCDate() - 1)
   return ar.toISOString().slice(0, 10)
 }
@@ -56,6 +66,56 @@ function formatearFecha(fecha: string): string {
   // fecha 'YYYY-MM-DD' -> DD/MM/YYYY sin desfase de timezone
   const [a, m, d] = fecha.split("-")
   return `${d}/${m}/${a}`
+}
+
+// Muestra el contacto del ganador como link directo (WhatsApp / Instagram / email)
+function ContactoGanador({ contacto }: { contacto: string | null }) {
+  if (!contacto) return <span className="text-muted-foreground">—</span>
+
+  if (esNumeroTelefono(contacto)) {
+    const norm = normalizarTelefonoAR(contacto)
+    if (norm) {
+      return (
+        <a
+          href={`https://wa.me/${norm}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-green-600 hover:underline"
+        >
+          <MessageCircle className="w-3.5 h-3.5" />
+          {contacto}
+        </a>
+      )
+    }
+  }
+
+  if (contacto.startsWith("@")) {
+    return (
+      <a
+        href={`https://instagram.com/${contacto.slice(1)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-pink-600 hover:underline"
+      >
+        <AtSign className="w-3.5 h-3.5" />
+        {contacto}
+      </a>
+    )
+  }
+
+  if (contacto.includes("@")) {
+    return (
+      <a
+        href={`mailto:${contacto}`}
+        className="inline-flex items-center gap-1.5 text-blue-600 hover:underline"
+      >
+        <Mail className="w-3.5 h-3.5" />
+        {contacto}
+      </a>
+    )
+  }
+
+  return <span>{contacto}</span>
 }
 
 export function SorteosDiariosManager({ sorteoId }: Props) {
@@ -73,7 +133,7 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
 
   // Sorteo
   const [fecha, setFecha] = useState(ayerArgentina())
-  const [tipo, setTipo] = useState<"todos" | "primeros_x">("todos")
+  const [tipo, setTipo] = useState<TipoParticipantes>("todos")
   const [cantidad, setCantidad] = useState("50")
   const [premio, setPremio] = useState("")
   const [elegibles, setElegibles] = useState<number | null>(null)
@@ -122,16 +182,19 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
     return isNaN(n) ? undefined : n
   }
 
+  // Para 'acumulado' la fecha no filtra nada; se guarda la del día del sorteo.
+  const fechaEfectiva = () => (tipo === "acumulado" ? hoyArgentina() : fecha)
+
   const verElegibles = async () => {
     setCargandoElegibles(true)
     setElegibles(null)
-    const lista = await obtenerCompradoresDelDia(
+    const total = await contarElegibles(
       sorteoId,
-      fecha,
+      fechaEfectiva(),
       tipo,
       cantidadNum(),
     )
-    setElegibles(lista.length)
+    setElegibles(total)
     setCargandoElegibles(false)
   }
 
@@ -154,33 +217,37 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
     }
 
     setSorteando(true)
+    const fechaSorteo = fechaEfectiva()
 
-    // 1) Traemos los participantes reales para el ciclado de la animación
-    const participantes = await obtenerCompradoresDelDia(
+    // 1) Traemos nombres reales para el ciclado de la animación
+    const nombres = await obtenerNombresElegibles(
       sorteoId,
-      fecha,
+      fechaSorteo,
       tipo,
       cantidadNum(),
     )
-    if (participantes.length === 0) {
+    if (nombres.length === 0) {
       setSorteando(false)
       toast({
         variant: "destructive",
         title: "No se pudo entregar el regalo",
-        description: "No hay compradores pagados para ese día",
+        description:
+          tipo === "acumulado"
+            ? "No hay compradores pagados en este sorteo"
+            : "No hay compradores pagados para ese día",
       })
       return
     }
 
     // 2) Abrimos la animación (arranca a ciclar mientras se elige el ganador)
-    setReelNombres(participantes.map((c) => c.nombre))
+    setReelNombres(nombres)
     setResultado(null)
     setRevealAbierto(true)
 
     // 3) Realizamos y guardamos el sorteo; al setear el resultado, la animación aterriza
     const { sorteo, error } = await realizarSorteoDiario(
       sorteoId,
-      fecha,
+      fechaSorteo,
       tipo,
       premio.trim(),
       cantidadNum(),
@@ -319,8 +386,8 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
             Entregar el regalo del día
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Elegí un día y el premio. El sistema toma los compradores pagados de
-            ese día (hora Argentina) y elige un ganador al azar.
+            Elegí quiénes participan y el premio. El sistema toma los compradores
+            pagados (hora Argentina) y elige un ganador al azar.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -330,14 +397,20 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                 <CalendarDays className="w-4 h-4" />
                 Día de las compras
               </Label>
-              <Input
-                type="date"
-                value={fecha}
-                onChange={(e) => {
-                  setFecha(e.target.value)
-                  setElegibles(null)
-                }}
-              />
+              {tipo === "acumulado" ? (
+                <div className="flex h-10 items-center rounded-md border border-dashed border-gray-200 px-3 text-sm text-muted-foreground">
+                  No aplica — participan todos desde el inicio
+                </div>
+              ) : (
+                <Input
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => {
+                    setFecha(e.target.value)
+                    setElegibles(null)
+                  }}
+                />
+              )}
             </div>
 
             <div className="space-y-2">
@@ -376,6 +449,18 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
               >
                 Primeros X
               </Button>
+              <Button
+                type="button"
+                variant={tipo === "acumulado" ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setTipo("acumulado")
+                  setElegibles(null)
+                }}
+              >
+                <Users className="w-4 h-4 mr-1.5" />
+                Todos (desde el inicio)
+              </Button>
               {tipo === "primeros_x" && (
                 <Input
                   type="number"
@@ -390,6 +475,12 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                 />
               )}
             </div>
+            {tipo === "acumulado" && (
+              <p className="text-xs text-muted-foreground">
+                Participan todos los compradores pagados del sorteo, desde el
+                primer día hasta este momento.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -437,6 +528,7 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                   <TableHead>Participantes</TableHead>
                   <TableHead>Premio</TableHead>
                   <TableHead>Ganador</TableHead>
+                  <TableHead>Contacto</TableHead>
                   <TableHead className="text-center">Visible</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
@@ -448,7 +540,9 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                     <TableCell>
                       {s.tipo_participantes === "primeros_x"
                         ? `Primeros ${s.cantidad_participantes ?? "?"}`
-                        : "Todos"}
+                        : s.tipo_participantes === "acumulado"
+                          ? "Todos (histórico)"
+                          : "Todos del día"}
                       <span className="text-muted-foreground">
                         {" "}
                         · {s.total_participantes}
@@ -469,6 +563,9 @@ export function SorteosDiariosManager({ sorteoId }: Props) {
                           </Badge>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <ContactoGanador contacto={s.ganador_contacto} />
                     </TableCell>
                     <TableCell className="text-center">
                       <button

@@ -132,6 +132,8 @@ export interface SorteoDiario {
   ganador_comprador_id: string | null
   ganador_nombre: string | null
   ganador_numero: number | null
+  /** Contacto del ganador (teléfono, @instagram o email) al momento del sorteo */
+  ganador_contacto: string | null
   visible: boolean
   created_at: string
 }

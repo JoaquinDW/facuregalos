@@ -2218,63 +2218,140 @@ function rangoDiaArgentina(fecha: string): { inicio: string; fin: string } {
   return { inicio: inicio.toISOString(), fin: fin.toISOString() }
 }
 
-// Compradores pagados de un día. Si tipo = 'primeros_x' devuelve solo los
-// primeros `cantidad` ordenados por hora de compra (ascendente).
-export async function obtenerCompradoresDelDia(
+// Tipo de participantes del regalo diario:
+// - 'todos'      : todos los compradores pagados de un día
+// - 'primeros_x' : los primeros `cantidad` de un día (por hora de compra)
+// - 'acumulado'  : todos los compradores pagados del sorteo desde el inicio hasta ahora
+export type TipoParticipantes = "todos" | "primeros_x" | "acumulado"
+
+// Aplica los filtros comunes de elegibles a una query de `compradores`.
+// Para 'acumulado' no se filtra por fecha (participa todo el histórico).
+// Se tipa como `any` porque el builder de supabase encadena tipos que no
+// reflejamos acá; los resultados se castean en cada uso.
+function aplicarFiltrosElegibles(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  query: any,
   sorteoId: string,
   fecha: string,
-  tipo: "todos" | "primeros_x",
-  cantidad?: number,
-): Promise<Comprador[]> {
-  try {
+  tipo: TipoParticipantes,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
+  let q = query.eq("sorteo_id", sorteoId).eq("estado_pago", "pagado")
+  if (tipo !== "acumulado") {
     const { inicio, fin } = rangoDiaArgentina(fecha)
+    q = q.gte("created_at", inicio).lt("created_at", fin)
+  }
+  return q
+}
 
-    let query = supabase
+// Cuenta cuántos compradores participan (sin traer las filas).
+export async function contarElegibles(
+  sorteoId: string,
+  fecha: string,
+  tipo: TipoParticipantes,
+  cantidad?: number,
+): Promise<number> {
+  try {
+    const base = supabase
       .from("compradores")
-      .select("*")
-      .eq("sorteo_id", sorteoId)
-      .eq("estado_pago", "pagado")
-      .gte("created_at", inicio)
-      .lt("created_at", fin)
-      .order("created_at", { ascending: true })
-
-    if (tipo === "primeros_x" && cantidad && cantidad > 0) {
-      query = query.limit(cantidad)
-    }
-
-    const { data, error } = await query
+      .select("id", { count: "exact", head: true })
+    const { count, error } = await aplicarFiltrosElegibles(base, sorteoId, fecha, tipo)
     if (error) {
-      console.error("Error obteniendo compradores del día:", error)
+      console.error("Error contando elegibles:", error.message, error.code)
+      return 0
+    }
+    const total = count ?? 0
+    if (tipo === "primeros_x" && cantidad && cantidad > 0) {
+      return Math.min(total, cantidad)
+    }
+    return total
+  } catch (error) {
+    console.error("Error contando elegibles:", error)
+    return 0
+  }
+}
+
+// Devuelve hasta `max` nombres de elegibles, solo para el ciclado de la animación.
+export async function obtenerNombresElegibles(
+  sorteoId: string,
+  fecha: string,
+  tipo: TipoParticipantes,
+  cantidad?: number,
+  max = 150,
+): Promise<string[]> {
+  try {
+    const limite =
+      tipo === "primeros_x" && cantidad && cantidad > 0
+        ? Math.min(cantidad, max)
+        : max
+    const base = supabase.from("compradores").select("nombre")
+    const { data, error } = await aplicarFiltrosElegibles(base, sorteoId, fecha, tipo)
+      .order("created_at", { ascending: true })
+      .limit(limite)
+    if (error) {
+      console.error("Error obteniendo nombres elegibles:", error.message, error.code)
       return []
     }
-    return (data as Comprador[]) ?? []
+    return (data ?? []).map((r: { nombre: string }) => r.nombre)
   } catch (error) {
-    console.error("Error obteniendo compradores del día:", error)
+    console.error("Error obteniendo nombres elegibles:", error)
     return []
   }
 }
 
-// Realiza el sorteo del día: toma los elegibles, elige uno al azar y lo guarda.
+// Realiza el regalo diario: cuenta los elegibles, elige uno al azar de forma
+// uniforme (count + offset, sin traer todas las filas) y lo guarda.
 export async function realizarSorteoDiario(
   sorteoId: string,
   fecha: string,
-  tipo: "todos" | "primeros_x",
+  tipo: TipoParticipantes,
   premio: string,
   cantidad?: number,
 ): Promise<{ sorteo?: SorteoDiario; error?: string }> {
   try {
-    const elegibles = await obtenerCompradoresDelDia(sorteoId, fecha, tipo, cantidad)
-
-    if (elegibles.length === 0) {
-      return { error: "No hay compradores pagados para ese día" }
+    const total = await contarElegibles(sorteoId, fecha, tipo, cantidad)
+    if (total === 0) {
+      return {
+        error:
+          tipo === "acumulado"
+            ? "No hay compradores pagados en este sorteo"
+            : "No hay compradores pagados para ese día",
+      }
     }
 
-    const ganador = elegibles[Math.floor(Math.random() * elegibles.length)]
+    // Offset aleatorio uniforme dentro de los elegibles
+    const offset = Math.floor(Math.random() * total)
+    const base = supabase.from("compradores").select("*")
+    const { data: fila, error: errGanador } = await aplicarFiltrosElegibles(
+      base,
+      sorteoId,
+      fecha,
+      tipo,
+    )
+      .order("created_at", { ascending: true })
+      .range(offset, offset)
+
+    const ganador = (fila as Comprador[] | null)?.[0]
+    if (errGanador || !ganador) {
+      console.error("Error eligiendo ganador:", errGanador?.message)
+      return { error: "No se pudo elegir el ganador" }
+    }
+
     const numeros = ganador.numeros_asignados ?? []
     const ganadorNumero =
       numeros.length > 0
         ? numeros[Math.floor(Math.random() * numeros.length)]
         : null
+
+    // Snapshot del contacto según el método que haya dejado el comprador
+    const ganadorContacto =
+      ganador.telefono?.trim() ||
+      ganador.celular?.trim() ||
+      (ganador.instagram_username
+        ? "@" + ganador.instagram_username.replace(/^@/, "")
+        : "") ||
+      ganador.email?.trim() ||
+      null
 
     const { data, error } = await supabase
       .from("sorteos_diarios")
@@ -2284,10 +2361,11 @@ export async function realizarSorteoDiario(
         tipo_participantes: tipo,
         cantidad_participantes: tipo === "primeros_x" ? cantidad ?? null : null,
         premio,
-        total_participantes: elegibles.length,
+        total_participantes: total,
         ganador_comprador_id: ganador.id,
         ganador_nombre: ganador.nombre,
         ganador_numero: ganadorNumero,
+        ganador_contacto: ganadorContacto,
         visible: true,
       })
       .select()
