@@ -410,9 +410,9 @@ export default function LandingPage() {
 
               {/* Progress / Evento finalizado */}
               {sorteo?.estado === "sorteado" ? (
-                <div className="card-lux-silver p-6 text-center lg:text-left">
-                  <p className="text-lg font-semibold text-silver">
-                    Evento finalizado
+                <div className="card-lux-silver p-6 sm:p-8 text-center lg:text-left">
+                  <p className="text-3xl sm:text-4xl lg:text-5xl font-lux font-semibold uppercase tracking-[0.15em] text-silver">
+                    Finalizado
                   </p>
                 </div>
               ) : (
@@ -459,34 +459,34 @@ export default function LandingPage() {
                   )}
 
                   {sorteo?.estado === "sorteado" && (
-                    <div className="border-gold-gradient px-5 py-4">
-                      <h3 className="text-base font-semibold text-gold-solid mb-2 flex items-center gap-2">
-                        <Trophy className="w-4 h-4" />
+                    <div className="border-gold-gradient px-6 py-6 sm:px-8 sm:py-7">
+                      <h3 className="text-lg sm:text-xl font-semibold text-gold-solid mb-4 flex items-center gap-2">
+                        <Trophy className="w-5 h-5" />
                         {contenido.hero_sorteado_titulo}
                       </h3>
                       {sorteo.numero_ganador && (
-                        <div className="space-y-1.5">
+                        <div className="space-y-4">
                           {sorteo.ganador_nombre && (
-                            <p className="text-sm text-silver">
-                              Ganador:{" "}
-                              <span className="font-semibold text-gold-solid">
+                            <div>
+                              <p className="text-xs font-semibold text-silver-muted uppercase tracking-[0.2em] mb-1">
+                                Ganador
+                              </p>
+                              <p className="text-2xl sm:text-3xl lg:text-4xl font-lux font-semibold text-gold-solid leading-tight">
                                 {sorteo.ganador_nombre}
-                              </span>
-                            </p>
+                              </p>
+                            </div>
                           )}
-                          <p className="text-sm text-silver">
-                            Número Ganador:{" "}
-                            <span className="font-mono font-bold text-gold-solid text-lg">
+                          <div>
+                            <p className="text-xs font-semibold text-silver-muted uppercase tracking-[0.2em] mb-1">
+                              Número Ganador
+                            </p>
+                            <p className="font-mono font-bold text-gold-solid text-4xl sm:text-5xl lg:text-6xl leading-none">
                               {sorteo.numero_ganador}
-                            </span>
+                            </p>
+                          </div>
+                          <p className="text-sm text-silver-muted pt-1">
+                            Transmitido en vivo por Facebook
                           </p>
-                          {/* <p className="text-xs text-silver-muted">
-                            Según la Quiniela de Buenos Aires del{" "}
-                            {sorteo.updated_at &&
-                              new Date(sorteo.updated_at).toLocaleDateString(
-                                "es-AR",
-                              )}
-                          </p> */}
                         </div>
                       )}
                     </div>
