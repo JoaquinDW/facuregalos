@@ -33,7 +33,10 @@ import {
 } from "@/lib/database"
 import { generarComprobante } from "@/lib/comprobante"
 import type { Sorteo } from "@/lib/supabase"
-import type { PremiosSecundarios, PromoDiaria as PromoDiariaType } from "@/lib/database"
+import type {
+  PremiosSecundarios,
+  PromoDiaria as PromoDiariaType,
+} from "@/lib/database"
 import {
   obtenerContenido,
   conPlaceholders,
@@ -477,13 +480,13 @@ export default function LandingPage() {
                               {sorteo.numero_ganador}
                             </span>
                           </p>
-                          <p className="text-xs text-silver-muted">
+                          {/* <p className="text-xs text-silver-muted">
                             Según la Quiniela de Buenos Aires del{" "}
                             {sorteo.updated_at &&
                               new Date(sorteo.updated_at).toLocaleDateString(
                                 "es-AR",
                               )}
-                          </p>
+                          </p> */}
                         </div>
                       )}
                     </div>
